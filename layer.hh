@@ -3,12 +3,15 @@
 
 
 #include "vertex_edge.hh"
+#include <queue>
+#include <set>
 
 #define debuglog(...) {  printf(__VA_ARGS__); printf("\n");  }
 
 template <typename _container_ty, typename _elem_ty>
 bool contains(const _container_ty &c, const _elem_ty &e) {
-	return std::find(c.begin(), c.end(), e) != c.end();
+	// return std::find(c.begin(), c.end(), e) != c.end();
+	return c->find(e) != c.end();
 }
 
 
@@ -132,7 +135,7 @@ protected:
 								// don't need to split
 		}
 		
-		vertex_type *new_cb = vertex_type(b->x);
+		vertex_type *new_cb = new vertex_type(b->x);
 		debuglog("split: add_vertex: %d", new_cb->id);
 		coarser->add_vertex(new_cb);
 
@@ -176,7 +179,22 @@ protected:
 		}
 	}		
 
-	std::vector<vertex_type *> matched_component(vertex_type *c);
+	std::set<vertex_type *> matched_component(vertex_type *c)
+	{
+		std::set<vertex_type *> matched_comp;
+		std::queue<vertex_type *> qvs = { c };
+		while (!qvs.empty()) {
+			vertex_type *v = qvs.front(); qvs.pop_front();
+			matched_comp.insert(v);
+			for (auto e : v->es) {
+				if (e->a != e->b and e->a->coarser == e->b->coarser) {
+					vertex_type *vv = (v == e->b)? e->a: e->b;
+					if (!contains(matched_comp, vv)) qvs.push_back(vv);
+				}
+			}
+		}
+		return matched_comp;
+	}
 
 protected:
 	float_type f0;				// repulsion factor
