@@ -17,7 +17,12 @@ public:
     }
     typedef _float_type coord_type;
     coord_type v[3];
+
+	static const vector3d<_float_type> zero;
 };
+
+template <typename _float_type>
+const vector3d<_float_type> vector3d<_float_type>::zero(.0, .0, .0);
 
 
 // special optimization for SSE-enabled platforms
@@ -32,7 +37,12 @@ public:
     }
     typedef float coord_type;
     __m128 v;
+
+	static const vector3d<float> zero;
 };
+
+const vector3d<float> vector3d<float>::zero(.0, .0, .0);
+
 
 #endif
 

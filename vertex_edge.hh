@@ -1,6 +1,5 @@
-#ifndef _MULTILEVEL_H_
-#define _MULTILEVEL_H_
-
+#ifndef _VERTEX_EDGE_H_
+#define _VERTEX_EDGE_H_
 
 #include "vec3d.hh"
 #include "prop.hh"
@@ -10,7 +9,7 @@
 #include <assert.h>
 
 
-template <typename _float_type>
+template <typename _coord_type>
 class edge;
 
 
@@ -21,19 +20,21 @@ class edge;
 //   vertex_styled: vertex in finest layer, with style info for rendering
 // 
 
-template <typename _float_type>
+template <typename _coord_type>
 class vertex
 {
 public:
-    typedef vector3d<_float_type> vector3d_type;
-    typedef vertex<_float_type> vertex_type;
-    typedef edge<_float_type> edge_type;
+    typedef vector3d<_coord_type> vector3d_type;
+    typedef vertex<_coord_type> vertex_type;
+    typedef edge<_coord_type> edge_type;
 
-    vertex(_float_type x, _float_type y, _float_type z)
+    vertex(_coord_type x, _coord_type y, _coord_type z)
         : id(vertex_id++),
-          x(x, y, z), 
-          dx(0, 0, 0), ddx(0, 0, 0), delta(0, 0, 0),
-          coarser(nullptr) {
+          x(x, y, z) {
+    }
+    vertex(const vector3d_type &x)
+        : id(vertex_id++),
+		  x(x) {
     }
     vertex(const vertex &) = delete;
 
@@ -49,31 +50,31 @@ public:
 
     static int vertex_id;
     int id;
-    vector3d_type x;
-    vector3d_type dx;
-    vector3d_type ddx;
-    vector3d_type delta;
-    vertex *coarser;
+    vector3d_type x = vector3d_type::zero;
+    vector3d_type dx = vector3d_type::zero;
+    vector3d_type ddx = vector3d_type::zero;
+    vector3d_type delta = vector3d_type::zero;
+    vertex *coarser = nullptr;
     std::vector<edge_type *> es;
 };
 
-template <typename _float_type>
-int vertex<_float_type>::vertex_id;
+template <typename _coord_type>
+int vertex<_coord_type>::vertex_id;
 
-template <typename _float_type>
-class vertex_coarse : public vertex<_float_type> {
+template <typename _coord_type>
+class vertex_coarse : public vertex<_coord_type> {
 public:
-    vertex_coarse(_float_type x, _float_type y, _float_type z)
-        : vertex<_float_type>(x, y, z) {
+    vertex_coarse(_coord_type x, _coord_type y, _coord_type z)
+        : vertex<_coord_type>(x, y, z) {
     }
 };
 
-template <typename _float_type>
-class vertex_styled : public vertex<_float_type>
+template <typename _coord_type>
+class vertex_styled : public vertex<_coord_type>
 {
 public:
-    vertex_styled(_float_type x, _float_type y, _float_type z)
-        : vertex<_float_type>(x, y, z) {
+    vertex_styled(_coord_type x, _coord_type y, _coord_type z)
+        : vertex<_coord_type>(x, y, z) {
     }
 
     shape_type shape = shape_type::cube;
@@ -95,11 +96,11 @@ public:
 //   edge_styled: edges in finest layer, with style info, not reference counted
 // 
 
-template <typename _float_type>
+template <typename _coord_type>
 class edge
 {
 public:
-    typedef vertex<_float_type> vertex_type;
+    typedef vertex<_coord_type> vertex_type;
     edge(vertex_type *a, vertex_type *b, 
         bool refcounted = true, bool oriented = false)
         : a(a), b(b), cnt(0), refcounted(refcounted), oriented(oriented) {
@@ -107,33 +108,33 @@ public:
     edge(const edge &) = delete;
 
     // Connect/Disconnect the edge from a to b
-    edge<_float_type> *connect(void);
+    edge<_coord_type> *connect(void);
     void disconnect(void);
         
-    vertex<_float_type> *a;
-    vertex<_float_type> *b;
+    vertex<_coord_type> *a;
+    vertex<_coord_type> *b;
     double strength = 1.0;
     int cnt = 0;
     bool refcounted: 1;
     bool oriented: 1;
 };
 
-template <typename _float_type>
-class edge_coarse : public edge<_float_type> {
+template <typename _coord_type>
+class edge_coarse : public edge<_coord_type> {
 public:
-    typedef vertex<_float_type> vertex_type;
+    typedef vertex<_coord_type> vertex_type;
     edge_coarse(vertex_type *a, vertex_type *b)
-        : edge<_float_type>(a, b, true, false) {
+        : edge<_coord_type>(a, b, true, false) {
     }
 };
 
-template <typename _float_type>
-class edge_styled : public edge<_float_type>
+template <typename _coord_type>
+class edge_styled : public edge<_coord_type>
 {
 public:
-    typedef vertex<_float_type> vertex_type;
+    typedef vertex<_coord_type> vertex_type;
     edge_styled(vertex_type *a, vertex_type *b)
-        : edge<_float_type>(a, b, false, false),
+        : edge<_coord_type>(a, b, false, false),
           visible(true), 
           arrow(false), arrow_reverse(false),
           spline(false), showstrain(false) {
@@ -159,9 +160,9 @@ public:
 
 // Find the first edge shared by this vertex (notated as a) and b (a->b or
 // b->a), this is maily for testing if a and b is connected or not
-template <typename _float_type>
-edge<_float_type> *
-vertex<_float_type>::shared_edge(const vertex<_float_type> *b) const
+template <typename _coord_type>
+edge<_coord_type> *
+vertex<_coord_type>::shared_edge(const vertex<_coord_type> *b) const
 {
     for (auto e: es) {
         if ((e->a == this and e->b == b) or
@@ -171,9 +172,9 @@ vertex<_float_type>::shared_edge(const vertex<_float_type> *b) const
 }
 
 // Find the first edge pointing from this vertex outward to b
-template <typename _float_type>
-edge<_float_type> *
-vertex<_float_type>::first_edge_to(const vertex<_float_type> *b) const
+template <typename _coord_type>
+edge<_coord_type> *
+vertex<_coord_type>::first_edge_to(const vertex<_coord_type> *b) const
 {
     for (auto e: es) {
         if (e->a == this and e->b == b) return e;
@@ -184,8 +185,8 @@ vertex<_float_type>::first_edge_to(const vertex<_float_type> *b) const
 // Calculate the value of neighbour hash function, the result is a boolean
 // indicating whether we should match (or say, collapse) this edge in coarser
 // graph.
-template <typename _float_type>
-bool vertex<_float_type>::neihash(const edge<_float_type> *new_e) const
+template <typename _coord_type>
+bool vertex<_coord_type>::neihash(const edge<_coord_type> *new_e) const
 {
     if (new_e->a == new_e->b) return false;
     for (auto e: es) {
@@ -199,8 +200,8 @@ bool vertex<_float_type>::neihash(const edge<_float_type> *new_e) const
 // Connect vertex a and b. According to if the edge is reference counted, we
 // might increase the reference count of an already existing instead of making
 // a hard link with this edge object
-template <typename _float_type>
-edge<_float_type> *edge<_float_type>::connect(void)
+template <typename _coord_type>
+edge<_coord_type> *edge<_coord_type>::connect(void)
 {
     assert(cnt >= 0);
     auto e_ = refcounted? 
@@ -220,8 +221,8 @@ edge<_float_type> *edge<_float_type>::connect(void)
 }
 
 // Disconnect a from b
-template <typename _float_type>
-void edge<_float_type>::disconnect(void)
+template <typename _coord_type>
+void edge<_coord_type>::disconnect(void)
 {
     assert(cnt > 0);
     cnt -= 1;
@@ -235,4 +236,4 @@ void edge<_float_type>::disconnect(void)
 }
 
 
-#endif /* _MULTILEVEL_H_ */
+#endif /* _VERTEX_EDGE_H_ */
