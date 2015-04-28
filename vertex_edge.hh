@@ -209,7 +209,7 @@ edge<_coord_type> *edge<_coord_type>::connect(void)
         nullptr;
     if (e_) {
         e_->cnt += 1;
-        delete this;
+        if (e_ != this) delete this;
         return e_;
     }
     else {

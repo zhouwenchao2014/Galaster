@@ -6,12 +6,13 @@
 #include <queue>
 #include <set>
 
-#define debuglog(...) {  printf(__VA_ARGS__); printf("\n");  }
+// #define debuglog(...) {  printf(__VA_ARGS__); printf("\n");  }
+#define debuglog(...)
 
 template <typename _container_ty, typename _elem_ty>
 bool contains(const _container_ty &c, const _elem_ty &e) {
 	// return std::find(c.begin(), c.end(), e) != c.end();
-	return c->find(e) != c.end();
+	return c.find(e) != c.end();
 }
 
 
@@ -30,13 +31,13 @@ class layer
 {
 public:
 	typedef _coord_type float_type;
+	typedef vector3d<_coord_type> vector3d_type;
 	typedef layer<_coord_type> layer_type;
 	typedef vertex<_coord_type> vertex_type;
 	typedef edge<_coord_type> edge_type;
-	typedef vector3d<_coord_type> vector3d_type;
 
-	layer(double f0, double K, double eps, double dampling, double dilation)
-		: f0(f0), K(K), eps(eps), dampling(dampling), dilation(dilation) {
+	layer(double f0, double K, double eps, double damping, double dilation)
+		: f0(f0), K(K), eps(eps), damping(damping), dilation(dilation) {
 	}
 	layer(const layer &) = delete;
 
@@ -56,6 +57,7 @@ public:
 		assert(v->es.size() == 0);
 		if (coarser) {
 			coarser->remove_vertex(v->coarser);
+            delete v->coarser;
 		}
 		vs.erase(std::find(vs.begin(), vs.end(), v));
 	}
@@ -69,7 +71,7 @@ public:
 			vertex_type *ca = a->coarser, *cb = b->coarser;
 			edge_type *e_new = new edge_type(ca, cb);
 			debuglog("add_edge: add_edge (coarser): %d -> %d", ca->id, cb->id);
-			coarser->add_edge(e_new);
+			e_new = coarser->add_edge(e_new);
 			if (matched and ca != cb) {
 				debuglog("calling match on %d(%d) and %d(%d)", a->id, ca->id, b->id, cb->id);
 				match(a, b);
@@ -96,9 +98,6 @@ public:
 
 	void layout(float_type dt);
 
-	std::vector<vertex_type *> vs;
-	layer_type *coarser = nullptr;
-
 protected:
 	void match(vertex_type *a, vertex_type *b)
 	{
@@ -115,7 +114,7 @@ protected:
 				debuglog("match: remove_edge: %d -> %d", e->a->id, e->b->id);
 				coarser->remove_edge(e);
 				debuglog("match: add_edge: %d -> %d", e_new->a->id, e_new->b->id);
-				coarser->add_edge(e_new);
+				e_new = coarser->add_edge(e_new);
 			}
 		}
 
@@ -169,7 +168,7 @@ protected:
 					debuglog("split: remove_edge (e_old: %d -> %d)", e_old->a->id, e_old->b->id);
 					coarser->remove_edge(e_old);
 					debuglog("split: add_edge (e_new: %d -> %d)" , e_new->a->id, e_new->b->id);
-					coarser->add_edge(e_new);
+					e_new = coarser->add_edge(e_new);
 				}
 			}
 		}
@@ -182,25 +181,74 @@ protected:
 	std::set<vertex_type *> matched_component(vertex_type *c)
 	{
 		std::set<vertex_type *> matched_comp;
-		std::queue<vertex_type *> qvs = { c };
+		std::queue<vertex_type *> qvs;
+        qvs.push(c);
 		while (!qvs.empty()) {
-			vertex_type *v = qvs.front(); qvs.pop_front();
+			vertex_type *v = qvs.front(); qvs.pop();
 			matched_comp.insert(v);
 			for (auto e : v->es) {
 				if (e->a != e->b and e->a->coarser == e->b->coarser) {
 					vertex_type *vv = (v == e->b)? e->a: e->b;
-					if (!contains(matched_comp, vv)) qvs.push_back(vv);
+					if (!contains(matched_comp, vv)) qvs.push(vv);
 				}
 			}
 		}
 		return matched_comp;
 	}
 
+
+    // for debugging
+    int nd_edges(void)
+    {
+        int n = 0;
+        for (auto v : vs) {
+            for (auto e : v->es) {
+                n += (e->a == e->b? 2: 1) * e->cnt;
+            }
+        }
+        return n;
+    }
+
+public:
+    bool verify_integrity(void)
+    {
+        if (!coarser) return true;
+        for (auto v : vs) {
+            for (auto e : v->es) {
+                vertex_type *a = e->a, *b = e->b;
+                vertex_type *ca = a->coarser, *cb = b->coarser;
+                if (ca->shared_edge(cb) == nullptr)
+                    return false;
+            }
+        }
+        return nd_edges() == coarser->nd_edges();
+    }
+
+    bool verify_redundancy(void)
+    {
+        if (!coarser) return true;
+        for (auto cv : coarser->vs) {
+            bool redundant = true;
+            for (auto v : vs) {
+                if (v->coarser == cv) {
+                    redundant = false;
+                    break;
+                }
+            }
+            if (redundant) return false;
+        }
+        return true;
+    }
+
+public:
+	std::vector<vertex_type *> vs;
+	layer_type *coarser = nullptr;
+
 protected:
 	float_type f0;				// repulsion factor
 	float_type K;				// spring factor
 	float_type eps;				// small constant to get rid of division singularity
-	float_type dampling;		// damping factor for dissipating energy
+	float_type damping;         // damping factor for dissipating energy
 	float_type dilation;		// dilation factor used when transfering the dynamics
 								// of coarser graph to the finer graph
 };
