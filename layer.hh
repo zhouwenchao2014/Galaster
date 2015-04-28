@@ -200,49 +200,6 @@ protected:
 	}
 
 
-    // for debugging
-    int nd_edges(void)
-    {
-        int n = 0;
-        for (auto v : vs) {
-            for (auto e : v->es) {
-                n += (e->a == e->b? 2: 1) * e->cnt;
-            }
-        }
-        return n;
-    }
-
-public:
-    bool verify_integrity(void)
-    {
-        if (!coarser) return true;
-        for (auto v : vs) {
-            for (auto e : v->es) {
-                vertex_type *a = e->a, *b = e->b;
-                vertex_type *ca = a->coarser, *cb = b->coarser;
-                if (ca->shared_edge(cb) == nullptr)
-                    return false;
-            }
-        }
-        return nd_edges() == coarser->nd_edges();
-    }
-
-    bool verify_redundancy(void)
-    {
-        if (!coarser) return true;
-        for (auto cv : coarser->vs) {
-            bool redundant = true;
-            for (auto v : vs) {
-                if (v->coarser == cv) {
-                    redundant = false;
-                    break;
-                }
-            }
-            if (redundant) return false;
-        }
-        return true;
-    }
-
 public:
 	std::vector<vertex_type *> vs;
 	layer_type *coarser = nullptr;

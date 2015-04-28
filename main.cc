@@ -1,4 +1,5 @@
 #include "graph.hh"
+#include "verify.hh"
 
 
 typedef graph<float> graph_type;
@@ -11,32 +12,6 @@ int randint(int from, int to)
 {
     int n = to - from + 1;
     return rand() % n + from;
-}
-
-void dump_graphviz(const layer_type *layer, const std::string &filename)
-{
-    FILE *fp = fopen(filename.c_str(), "w+");
-    fprintf(fp, "digraph G {\n");
-    fprintf(fp, "node [ shape = \"circle\" ];\n");
-    for (auto v : layer->vs) {
-        fprintf(fp, "  v%d [ label = \"v%d\" ];\n", v->id, v->id);
-        for (auto e : v->es) {
-            if (e->a == v) {
-                if (e->a != e->b and 
-                    e->a->coarser == e->b->coarser and
-                    e->a->coarser != nullptr) {
-                    fprintf(fp, "  v%d -> v%d [ penwidth = 4 ];\n", 
-                        e->a->id, e->b->id);
-                }
-                else {
-                    fprintf(fp, "  v%d -> v%d [ penwidth = 1 ];\n", 
-                        e->a->id, e->b->id);
-                }
-            }
-        }
-    }
-    fprintf(fp, "}\n");
-    fclose(fp);
 }
 
 
@@ -68,11 +43,11 @@ void random_test(int n_layers, int n_vertex, int epochs)
             }
         }
 
-        if (!graph->verify_integrity()) {
+        if (!verify_integrity(graph)) {
             printf("!!! INTEGRITY CHECK FAILED !!!\n");
             exit(-1);
         }
-        if (!graph->verify_redundancy()) {
+        if (!verify_redundancy(graph)) {
             printf("!!! REDUNDANCY CHECK FAILED !!!\n");
             exit(-1);
         }
@@ -92,11 +67,11 @@ void random_test(int n_layers, int n_vertex, int epochs)
         for (auto e : es) {
             // printf("[REMOVE EDGE (%d -> %d)\n", e->a->id, e->b->id
             graph->g->remove_edge(e);
-            if (!graph->verify_integrity()) {
+            if (!verify_integrity(graph)) {
                 printf("!!! INTEGRITY CHECK FAILED !!!\n");
                 exit(-1);
             }
-            if (!graph->verify_redundancy()) {
+            if (!verify_redundancy(graph)) {
                 printf("!!! REDUNDANCY CHECK FAILED !!!\n");
                 exit(-1);
             }
