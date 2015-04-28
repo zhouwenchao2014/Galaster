@@ -66,7 +66,7 @@ public:
             int cnt = e->cnt;
             for (int k = 0; k < cnt; k++) remove_edge(e);
         }
-		assert(v->es.size() == 0);
+		assert(v->es.empty());
 		if (coarser) {
 			coarser->remove_vertex(v->coarser);
             delete v->coarser;
