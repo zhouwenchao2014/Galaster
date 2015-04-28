@@ -14,7 +14,7 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
 {
     // move vertices with verlet integration on this layer
     for (auto v : vs) {
-        v->delta = v->dx * dt + 0.5 * v->ddx * dt*dt;
+        v->delta = v->dx * dt + (0.5 * dt*dt) * v->ddx;
         v->x += v->delta;
     }
 
@@ -27,7 +27,7 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
         for (auto v2 : vs) {
             if (v != v2) {
                 auto dx = v->x - v2->x;
-                auto dd = v->x.mod();
+                auto dd = dx.mod();
                 auto denom = eps + dd;
                 auto fac = f0 / (denom * denom * denom);
                 F_r += fac * dx;
@@ -55,7 +55,7 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
     // calculate velocity with verlet integration
     if (coarser) {
         for (auto v : vs) {
-            // v->ddx_ += 1.2 * v->coarser->ddx;
+            // v->ddx_ += dilation * v->coarser->ddx;
             v->dx += (0.5 * (v->ddx + v->ddx_) * dt) * damping;
             v->ddx = v->ddx_;
         }

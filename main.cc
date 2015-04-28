@@ -6,6 +6,8 @@
 typedef double _float_type;
 // typedef float _float_type;
 
+// #define DBG_VERIFY_INTEGRITY
+
 typedef graph<_float_type> graph_type;
 typedef layer<_float_type> layer_type;
 typedef edge<_float_type> edge_type;
@@ -19,12 +21,61 @@ int randint(int from, int to)
 }
 
 
-void random_test(int n_layers, int n_vertex, int epochs)
+void layout_test(int n_layers, int n_vertex, int n_edge)
 {
-    graph_type *graph = new graph_type(n_layers, 0,0,0,0,0);
+    graph_type *graph = new graph_type(n_layers, 
+        250,                    // f0
+        0.02,                   // K
+        0.001,                  // eps
+        0.6,                    // damping
+        1.2);                   // dilation
     
     for (int k = 0; k < n_vertex; k++) {
-        graph->g->add_vertex(new vertex_styled<_float_type>(0,0,0));
+        graph->g->add_vertex(new vertex_styled<_float_type>(
+                randint(-100, 100),
+                randint(-100, 100),
+                randint(-100, 100)));
+    }
+
+    for (int k = 0; k < n_vertex - 1; k++) {
+        int ne = randint(1, n_edge);
+        for (int n = 0; n < ne; n++) {
+            int x2 = randint(k + 1, n_vertex - 1);
+            graph->g->add_edge(new edge_type(graph->g->vs[k], graph->g->vs[x2]));
+        }
+    }
+
+    printf("\nLAYOUT BEGIN\n");
+    clock_t start = clock();
+    for (int k = 0; k < 10000; k++) {
+        graph->g->layout(1.0);
+        _float_type maxdelta = 0.0;
+        for (auto v : graph->g->vs) {
+            _float_type mod_delta = v->delta.mod();
+            maxdelta = std::max(maxdelta, mod_delta);
+        }
+        printf("iter #%d, maxdelta: %f\n", k, maxdelta);
+    }
+    clock_t end = clock() - start;
+    printf("LAYOUT END, time elapsed: %lu ms\n\n", (end - start) * 1000 / CLOCKS_PER_SEC);
+
+    delete graph;
+}
+
+void random_test(int n_layers, int n_vertex, int epochs)
+{
+    graph_type *graph = new graph_type(n_layers, 
+        250,                    // f0
+        0.02,                   // K
+        0.001,                  // eps
+        0.6,                    // damping
+        1.2);                   // dilation
+    
+    for (int k = 0; k < n_vertex; k++) {
+        graph->g->add_vertex(new vertex_styled<_float_type>(
+                randint(-100, 100),
+                randint(-100, 100),
+                randint(-100, 100)));
     }
 
     for (int k = 0; k < epochs; k++)
@@ -38,15 +89,16 @@ void random_test(int n_layers, int n_vertex, int epochs)
             graph->g->add_edge(e);
         }
         else {
-            // edge_type *e = graph->g->vs[x1]->shared_edge(graph->g->vs[x2]);
-            if (graph->g->vs[x1]->es.empty()) continue;
-            edge_type *e = graph->g->vs[x1]->es[0];
+            edge_type *e = graph->g->vs[x1]->shared_edge(graph->g->vs[x2]);
+            // if (graph->g->vs[x1]->es.empty()) continue;
+            // edge_type *e = graph->g->vs[x1]->es[0];
             if (e) {
                 printf("[REMOVE EDGE (%d)]: %d -> %d\n", k, e->a->id, e->b->id);
                 graph->g->remove_edge(e);
             }
         }
 
+#ifdef DBG_VERIFY_INTEGRITY
         if (!verify_integrity(graph)) {
             printf("!!! INTEGRITY CHECK FAILED !!!\n");
             exit(-1);
@@ -55,9 +107,23 @@ void random_test(int n_layers, int n_vertex, int epochs)
             printf("!!! REDUNDANCY CHECK FAILED !!!\n");
             exit(-1);
         }
+#endif
     }
 
-    graph->g->layout(0.5);
+    printf("\nLAYOUT BEGIN\n");
+    clock_t start = clock();
+    for (int k = 0; k < 100000; k++) {
+        graph->g->layout(1.0);
+        _float_type maxdelta = 0.0;
+        for (auto v : graph->g->vs) {
+            _float_type mod_delta = v->delta.mod();
+            // printf("iter #%d, mod_delta: %f\n", k, mod_delta);
+            maxdelta = std::max(maxdelta, mod_delta);
+        }
+        printf("iter #%d, maxdelta: %f\n", k, maxdelta);
+    }
+    clock_t end = clock() - start;
+    printf("LAYOUT END, time elapsed: %lu ms\n\n", (end - start) * 1000 / CLOCKS_PER_SEC);
 
     int i_layer = 0;
     for (auto layer : graph->layers) {
@@ -73,6 +139,8 @@ void random_test(int n_layers, int n_vertex, int epochs)
         for (auto e : es) {
             // printf("[REMOVE EDGE (%d -> %d)\n", e->a->id, e->b->id);
             graph->g->remove_edge(e);
+
+#ifdef DBG_VERIFY_INTEGRITY
             if (!verify_integrity(graph)) {
                 printf("!!! INTEGRITY CHECK FAILED !!!\n");
                 exit(-1);
@@ -81,6 +149,7 @@ void random_test(int n_layers, int n_vertex, int epochs)
                 printf("!!! REDUNDANCY CHECK FAILED !!!\n");
                 exit(-1);
             }
+#endif
         }
         graph->g->remove_vertex(v);
         delete v;
@@ -110,10 +179,11 @@ int main(int argc, char *argv[])
 #endif
 
     srand(time(NULL));
-    int n_layer = 8;
+    int n_layer = 6;
     int n_vertex = 100;
     int n_edges = 3;
-    random_test(n_layer, n_vertex, n_vertex * n_edges * 2);
+    // random_test(n_layer, n_vertex, n_vertex * n_edges * 2);
+    layout_test(n_layer, n_vertex, n_edges);
 
     return 0;
 }

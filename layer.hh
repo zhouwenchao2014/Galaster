@@ -62,7 +62,10 @@ public:
 	void remove_vertex(vertex_type *v)
 	{
         auto es = v->es;
-        for (auto e : es) remove_edge(e);
+        for (auto e : es) {
+            int cnt = e->cnt;
+            for (int k = 0; k < cnt; k++) remove_edge(e);
+        }
 		assert(v->es.size() == 0);
 		if (coarser) {
 			coarser->remove_vertex(v->coarser);
