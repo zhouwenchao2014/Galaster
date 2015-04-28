@@ -18,8 +18,7 @@ bool contains(const _container_ty &c, const _elem_ty &e) {
 
 // 
 // A layer of graph. Both finest layers and coarsen layers are of this type.  Each
-// layer has a `coarser` member for accessing the coarser version of the same
-// graph. 
+// layer has a `coarser` member for accessing the coarser version of the same graph.
 // 
 // Lagrange dynamics are calculated from the coarsest layer all the way down to the
 // finest layer, with some multilevel dynamics mechanism for transfering the layout
@@ -41,6 +40,10 @@ public:
 	}
 	layer(const layer &) = delete;
 
+    // 
+    // add vertex v to this layer, and create corresponding coarsed version of v in
+    // coarsen layers
+    // 
 	void add_vertex(vertex_type *v)
 	{
 		vs.push_back(v);
@@ -52,8 +55,14 @@ public:
 		}
 	}
 
+    // 
+    // remove vertex v from this layer, as well as deleting its corresponding coarser
+    // versions.
+    // 
 	void remove_vertex(vertex_type *v)
 	{
+        auto es = v->es;
+        for (auto e : es) remove_edge(e);
 		assert(v->es.size() == 0);
 		if (coarser) {
 			coarser->remove_vertex(v->coarser);
@@ -63,6 +72,11 @@ public:
         v->coarser = nullptr;
 	}
 
+    // 
+    // add edge e to this layer, corresponded edges in coarsen layers would be
+    // automatically created. You should use the returned edge object after calling
+    // this function.
+    // 
 	edge_type *add_edge(edge_type *e)
 	{
 		vertex_type *a = e->a, *b = e->b;
@@ -82,6 +96,12 @@ public:
 		return ret;
 	}
 
+    // 
+    // remove specified edge from this layer, corresponded edges in coarsen layers
+    // would be automatically removed. Notice that the removed edge object might be
+    // deleted after calling this function (depending on its reference count), so you
+    // should never use e after it being removed.
+    // 
 	void remove_edge(edge_type *e)
 	{
 		vertex_type *a = e->a, *b = e->b;
@@ -102,6 +122,9 @@ public:
 	void layout(float_type dt);
 
 protected:
+
+    // match edge from a to b, so that a and b would be merged into the same matched
+    // component
 	void match(vertex_type *a, vertex_type *b)
 	{
 		vertex_type *ca = a->coarser, *cb = b->coarser;
@@ -127,14 +150,15 @@ protected:
 		delete cb;
 	}
 
+    // split matched component (due to the removal of edge from a to b)
 	void split(vertex_type *a, vertex_type *b)
 	{
 		vertex_type *ca = a->coarser, *cb = b->coarser;
 		assert(ca == cb and a != b);
 		auto split_nodes = matched_component(b);
 		if (contains(split_nodes, a)) {
-			return;         // a and b are still in the same matched component,
-                            // don't need to split
+			return;         // a and b are still in the same matched component, don't
+                            // need to split
 		}
 		
 		vertex_type *new_cb = new vertex_type(b->x);
@@ -146,7 +170,8 @@ protected:
 			for (auto e : v->es) {
 				vertex_type *cv = nullptr;
 				edge_type *e_new = nullptr;
-				if (contains(split_nodes, e->a) and contains(split_nodes, e->b)) {
+				if (contains(split_nodes, e->a) and 
+                    contains(split_nodes, e->b)) {
 					assert(e->a->coarser == e->b->coarser);
 					if (e->a == v) {
 						cv = e->b->coarser;
@@ -168,9 +193,11 @@ protected:
 				int cnt = e->cnt;
 				for (int k = 0; k < cnt; k++) {
 					edge_type *e_old = ca->shared_edge(cv);
-					debuglog("split: remove_edge (e_old: %d -> %d)", e_old->a->id, e_old->b->id);
+					debuglog("split: remove_edge (e_old: %d -> %d)", 
+                        e_old->a->id, e_old->b->id);
 					coarser->remove_edge(e_old);
-					debuglog("split: add_edge (e_new: %d -> %d)" , e_new->a->id, e_new->b->id);
+					debuglog("split: add_edge (e_new: %d -> %d)" , 
+                        e_new->a->id, e_new->b->id);
 					e_new = coarser->add_edge(e_new);
 				}
 			}
@@ -181,6 +208,7 @@ protected:
 		}
 	}		
 
+    // figure out all vertices in the same matched component with c 
 	std::set<vertex_type *> matched_component(vertex_type *c)
 	{
 		std::set<vertex_type *> matched_comp;

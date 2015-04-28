@@ -30,24 +30,13 @@ public:
     graph(const graph &) = delete;
 
     ~graph(void) {
-        // TODO: we might need to remove all edges and vertices in g
+        // remove all vertices (and edges) in this graph before disposing all layers
+        auto vs = g->vs;
+        for (auto v : vs) {
+            g->remove_vertex(v);
+            delete v;
+        }
         for (auto layer : layers) delete layer;
-    }
-
-    bool verify_integrity(void)
-    {
-        for (auto layer : layers) {
-            if (!layer->verify_integrity()) return false;
-        }
-        return true;
-    }
-
-    bool verify_redundancy(void)
-    {
-        for (auto layer : layers) {
-            if (!layer->verify_redundancy()) return false;
-        }
-        return true;
     }
 
     std::vector<layer_type *> layers;

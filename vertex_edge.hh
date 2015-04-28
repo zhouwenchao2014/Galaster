@@ -158,8 +158,8 @@ public:
 };
 
 
-// Find the first edge shared by this vertex (notated as a) and b (a->b or
-// b->a), this is maily for testing if a and b is connected or not
+// Find the first edge shared by this vertex (notated as a) and b (a->b or b->a),
+// this is maily for testing if a and b is connected or not
 template <typename _coord_type>
 edge<_coord_type> *
 vertex<_coord_type>::shared_edge(const vertex<_coord_type> *b) const
@@ -182,9 +182,8 @@ vertex<_coord_type>::first_edge_to(const vertex<_coord_type> *b) const
     return nullptr;
 }
 
-// Calculate the value of neighbour hash function, the result is a boolean
-// indicating whether we should match (or say, collapse) this edge in coarser
-// graph.
+// Calculate the value of neighbour hash function, the result is a boolean indicating
+// whether we should match (or say, collapse) this edge in coarser graph.
 template <typename _coord_type>
 bool vertex<_coord_type>::neihash(const edge<_coord_type> *new_e) const
 {
@@ -199,9 +198,9 @@ bool vertex<_coord_type>::neihash(const edge<_coord_type> *new_e) const
 }
 
 
-// Connect vertex a and b. According to if the edge is reference counted, we
-// might increase the reference count of an already existing instead of making
-// a hard link with this edge object
+// Connect vertex a and b. According to if the edge is reference counted, we might
+// increase the reference count of an already existing instead of making a hard link
+// with this edge object
 template <typename _coord_type>
 edge<_coord_type> *edge<_coord_type>::connect(void)
 {
