@@ -191,7 +191,9 @@ bool vertex<_coord_type>::neihash(const edge<_coord_type> *new_e) const
     if (new_e->a == new_e->b) return false;
     for (auto e: es) {
         if (e->a != e->b and 
-            e->a->coarser == e->b->coarser) return false;
+            e->a->coarser == e->b->coarser)
+            return false;
+            // return (rand() % 3) == 0;
     }
     return true;
 }

@@ -60,6 +60,7 @@ public:
             delete v->coarser;
 		}
 		vs.erase(std::find(vs.begin(), vs.end(), v));
+        v->coarser = nullptr;
 	}
 
 	edge_type *add_edge(edge_type *e)
@@ -73,7 +74,8 @@ public:
 			debuglog("add_edge: add_edge (coarser): %d -> %d", ca->id, cb->id);
 			e_new = coarser->add_edge(e_new);
 			if (matched and ca != cb) {
-				debuglog("calling match on %d(%d) and %d(%d)", a->id, ca->id, b->id, cb->id);
+				debuglog("calling match on %d(%d) and %d(%d)", 
+                    a->id, ca->id, b->id, cb->id);
 				match(a, b);
 			}
 		}
@@ -90,7 +92,8 @@ public:
 			debuglog("remove_edge: remove_edge (coarser): %d -> %d", ca->id, cb->id);
 			coarser->remove_edge(ca->shared_edge(cb));
 			if (a != b and ca == cb and !aeb_connected) {
-				debuglog("removing collapsed edge (%d -> %d), might need to split", a->id, b->id);
+				debuglog("removing collapsed edge (%d -> %d), might need to split", 
+                    a->id, b->id);
 				split(a, b);
 			}
 		}
@@ -130,8 +133,8 @@ protected:
 		assert(ca == cb and a != b);
 		auto split_nodes = matched_component(b);
 		if (contains(split_nodes, a)) {
-			return;				// a and b are still in the same matched component,
-								// don't need to split
+			return;         // a and b are still in the same matched component,
+                            // don't need to split
 		}
 		
 		vertex_type *new_cb = new vertex_type(b->x);

@@ -13,6 +13,33 @@ int randint(int from, int to)
     return rand() % n + from;
 }
 
+void dump_graphviz(const layer_type *layer, const std::string &filename)
+{
+    FILE *fp = fopen(filename.c_str(), "w+");
+    fprintf(fp, "digraph G {\n");
+    fprintf(fp, "node [ shape = \"circle\" ];\n");
+    for (auto v : layer->vs) {
+        fprintf(fp, "  v%d [ label = \"v%d\" ];\n", v->id, v->id);
+        for (auto e : v->es) {
+            if (e->a == v) {
+                if (e->a != e->b and 
+                    e->a->coarser == e->b->coarser and
+                    e->a->coarser != nullptr) {
+                    fprintf(fp, "  v%d -> v%d [ penwidth = 4 ];\n", 
+                        e->a->id, e->b->id);
+                }
+                else {
+                    fprintf(fp, "  v%d -> v%d [ penwidth = 1 ];\n", 
+                        e->a->id, e->b->id);
+                }
+            }
+        }
+    }
+    fprintf(fp, "}\n");
+    fclose(fp);
+}
+
+
 void random_test(int n_layers, int n_vertex, int epochs)
 {
     graph_type *graph = new graph_type(n_layers, 0,0,0,0,0);
@@ -33,6 +60,8 @@ void random_test(int n_layers, int n_vertex, int epochs)
         }
         else {
             edge_type *e = graph->g->vs[x1]->shared_edge(graph->g->vs[x2]);
+            // if (graph->g->vs[x1]->es.empty()) continue;
+            // edge_type *e = graph->g->vs[x1]->es[0];
             if (e) {
                 printf("[REMOVE EDGE (%d)]: %d -> %d\n", k, e->a->id, e->b->id);
                 graph->g->remove_edge(e);
@@ -49,11 +78,19 @@ void random_test(int n_layers, int n_vertex, int epochs)
         }
     }
 
+    int i_layer = 0;
+    for (auto layer : graph->layers) {
+        char filename[4096];
+        sprintf(filename, "layer_%d.dot", i_layer);
+        dump_graphviz(layer, filename);
+        i_layer += 1;
+    }
+
     auto vs = graph->g->vs;
     for (auto v : vs) {
         auto es = v->es;
         for (auto e : es) {
-            printf("[REMOVE EDGE (%d -> %d)\n", e->a->id, e->b->id);
+            // printf("[REMOVE EDGE (%d -> %d)\n", e->a->id, e->b->id
             graph->g->remove_edge(e);
             if (!graph->verify_integrity()) {
                 printf("!!! INTEGRITY CHECK FAILED !!!\n");
