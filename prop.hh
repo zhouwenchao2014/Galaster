@@ -16,7 +16,8 @@ enum class shape_type {
 enum class stroke_type {
     solid,
     dotted,
-    dashed
+    dashed,
+    none
 };
 
 class color_type {
