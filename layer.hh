@@ -119,6 +119,11 @@ public:
 		}
 	}
 
+
+    // 
+    // Apply numerical methods on the Lagrange Dynamics formed by the spring system
+    // defined by this graph.
+    // 
 	void layout(float_type dt);
 
 protected:

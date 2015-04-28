@@ -1,8 +1,10 @@
 #include "graph.hh"
+#include "layout.hh"
 #include "verify.hh"
 #include <unistd.h>
 
-typedef float _float_type;
+typedef double _float_type;
+// typedef float _float_type;
 
 typedef graph<_float_type> graph_type;
 typedef layer<_float_type> layer_type;
@@ -54,6 +56,8 @@ void random_test(int n_layers, int n_vertex, int epochs)
             exit(-1);
         }
     }
+
+    graph->g->layout(0.5);
 
     int i_layer = 0;
     for (auto layer : graph->layers) {

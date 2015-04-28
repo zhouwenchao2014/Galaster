@@ -6,7 +6,10 @@
 #define SSE_INTRINSINC
 #include <xmmintrin.h>
 #endif
+#include <cmath>
 
+
+// Baseline implementation for all real types
 template <typename _float_type>
 class vector3d {
 public:
@@ -16,13 +19,70 @@ public:
         v[2] = z;
     }
     typedef _float_type coord_type;
+	static const vector3d<_float_type> zero;
     coord_type v[3];
 
-	static const vector3d<_float_type> zero;
+    vector3d<_float_type>& operator *= (_float_type a) {
+        v[0] *= a;
+        v[1] *= a;
+        v[2] *= a;
+        return *this;
+    }
+
+    vector3d<_float_type>& operator += (const vector3d<_float_type> &r) {
+        v[0] += r.v[0];
+        v[1] += r.v[1];
+        v[2] += r.v[2];
+        return *this;
+    }
+
+    vector3d<_float_type>& operator -= (const vector3d<_float_type> &r) {
+        v[0] -= r.v[0];
+        v[1] -= r.v[1];
+        v[2] -= r.v[2];
+        return *this;
+    }
+
+    _float_type mod(void) const {
+        return sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+    }
 };
 
 template <typename _float_type>
 const vector3d<_float_type> vector3d<_float_type>::zero(.0, .0, .0);
+
+template <typename _float_type>
+vector3d<_float_type> operator * (_float_type a, const vector3d<_float_type> &x)
+{
+    vector3d<_float_type> res(x);
+    res *= a;
+    return res;
+}
+
+template <typename _float_type>
+vector3d<_float_type> operator * (const vector3d<_float_type> &x, _float_type a)
+{
+    return a * x;
+}
+
+
+template <typename _float_type>
+vector3d<_float_type> operator + (
+    const vector3d<_float_type> &a, const vector3d<_float_type> &b)
+{
+    vector3d<_float_type> c(a);
+    c += b;
+    return c;
+}
+
+template <typename _float_type>
+vector3d<_float_type> operator - (
+    const vector3d<_float_type> &a, const vector3d<_float_type> &b)
+{
+    vector3d<_float_type> c(a);
+    c -= b;
+    return c;
+}
 
 
 // special optimization for SSE-enabled platforms
@@ -36,9 +96,8 @@ public:
         v = _mm_load_ps(s);
     }
     typedef float coord_type;
-    __m128 v;
-
 	static const vector3d<float> zero;
+    __m128 v;
 };
 
 const vector3d<float> vector3d<float>::zero(.0, .0, .0);

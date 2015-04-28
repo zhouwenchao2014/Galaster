@@ -53,6 +53,7 @@ public:
     vector3d_type x = vector3d_type::zero;
     vector3d_type dx = vector3d_type::zero;
     vector3d_type ddx = vector3d_type::zero;
+    vector3d_type ddx_ = vector3d_type::zero;
     vector3d_type delta = vector3d_type::zero;
     vertex *coarser = nullptr;
     std::vector<edge_type *> es;
