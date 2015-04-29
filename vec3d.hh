@@ -7,6 +7,7 @@
 #include <xmmintrin.h>
 #endif
 #include <cmath>
+#include <algorithm>
 
 
 // Baseline implementation for all real types
@@ -41,6 +42,18 @@ public:
         v[1] -= r.v[1];
         v[2] -= r.v[2];
         return *this;
+    }
+
+    void bound(_float_type b) {
+        v[0] = std::max(std::min(v[0], b), -b);
+        v[1] = std::max(std::min(v[1], b), -b);
+        v[2] = std::max(std::min(v[2], b), -b);
+    }
+
+    void coord(_float_type &x, _float_type &y, _float_type &z) {
+        x = v[0];
+        y = v[1];
+        z = v[2];
     }
 
     _float_type mod(void) const {

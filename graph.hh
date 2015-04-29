@@ -39,6 +39,13 @@ public:
         for (auto layer : layers) delete layer;
     }
 
+    void layout(float_type dt)
+    {
+        for (auto i = layers.rbegin(); i != layers.rend(); ++i) {
+            (*i)->layout(dt);
+        }
+    }
+
     std::vector<layer_type *> layers;
     layer_type *g = nullptr;
 };

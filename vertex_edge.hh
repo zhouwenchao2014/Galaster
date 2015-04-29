@@ -78,6 +78,9 @@ public:
         : vertex<_coord_type>(x, y, z) {
     }
 
+    // render this vertex via OpenGL
+    void render(void) const;
+
     shape_type shape = shape_type::cube;
     color_type color = color_type::blue;
     double size = 1.0;
@@ -140,6 +143,9 @@ public:
           arrow(false), arrow_reverse(false),
           spline(false), showstrain(false) {
     }
+
+    // render this edge via OpenGL
+    void render(void) const;
 
     bool visible: 1;
     bool arrow: 1;
