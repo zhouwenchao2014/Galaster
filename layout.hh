@@ -20,6 +20,7 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
     }
 
     // calculate force/acceleration with Lagrange Dynamics
+#pragma omp parallel for
     for (auto v : vs) {
         vector3d_type F_r = vector3d_type::zero;
         vector3d_type F_p = vector3d_type::zero;
@@ -40,11 +41,11 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
             if (e->a != e->b) {
                 vertex_type *v2 = (e->a == v)? e->b: e->a;
                 auto dx = v->x - v2->x;
-                F_p -= K * dx;
+                F_p -= K * dx * e->strength;
                 if (e->oriented) {
                     F_p += ((e->b == v)? 
-                        vector3d_type(0, 0,  0.5):
-                        vector3d_type(0, 0, -0.5));
+                        vector3d_type(0,  2, 0):
+                        vector3d_type(0, -2, 0));
                 }
             }
         }
