@@ -27,6 +27,10 @@ public:
     }
     uint8_t r, g, b;
 
+    double redd(void) const { return r / 255.0; }
+    double greend(void) const { return g / 255.0; }
+    double blued(void) const { return b / 255.0; }
+
     static const color_type red, green, blue, white;
 };
 

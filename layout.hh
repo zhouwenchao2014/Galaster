@@ -15,7 +15,7 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) {
         v->delta = v->dx * dt + (0.5 * dt*dt) * v->ddx;
-        v->delta.bound(5);
+        v->delta.bound(3);
         v->x += v->delta;
     }
 

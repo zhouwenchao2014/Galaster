@@ -50,7 +50,7 @@ public:
         v[2] = std::max(std::min(v[2], b), -b);
     }
 
-    void coord(_float_type &x, _float_type &y, _float_type &z) {
+    void coord(_float_type &x, _float_type &y, _float_type &z) const {
         x = v[0];
         y = v[1];
         z = v[2];
