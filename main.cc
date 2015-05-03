@@ -264,6 +264,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         else if (membrane_mode == 4) membrane_5(g_graph);
         else if (membrane_mode == 5) membrane_6(g_graph);
     }
+    else if (key == 'Q' and action == 0) {
+        glfwSetWindowShouldClose(window, true);
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
@@ -346,10 +349,24 @@ void draw_scene(GLFWwindow* , graph_type *graph)
 }
 
 
+
+#ifdef __APPLE__
+void check_for_leaks(void)
+{
+    // launch leaks(1) to detect memory leaks
+    char leakdet_cmd[128];
+    sprintf(leakdet_cmd, "leaks %d", getpid());
+    system(leakdet_cmd);
+}
+#endif
+
 int main(int argc, char *argv[])
 {
     (void) argc;
     (void) argv;
+#ifdef __APPLE__
+    atexit(check_for_leaks);
+#endif
 
     if (!glfwInit()) {
         exit(EXIT_FAILURE);
