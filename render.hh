@@ -70,6 +70,7 @@ static void render_cube(int size)
 template <typename _coord_type>
 void vertex_styled<_coord_type>::render(void) const
 {
+    if (!visible) return;
     _coord_type x, y, z;
     this->x.coord(x, y, z);
     glTranslatef(x, y, z);
@@ -86,6 +87,8 @@ void vertex_styled<_coord_type>::render(void) const
             break;
         }
 
+            // TODO: handle other shape types
+
         default:
             fprintf(stderr, "unknown shape type specified: %d\n", (int) shape);
             break;
@@ -97,10 +100,14 @@ void vertex_styled<_coord_type>::render(void) const
 template <typename _coord_type>
 void edge_styled<_coord_type>::render(void) const
 {
+    if (!visible) return;
     _coord_type x0, y0, z0;
     _coord_type x1, y1, z1;
     this->a->x.coord(x0, y0, z0);
     this->b->x.coord(x1, y1, z1);
+
+    // TODO: handle arrow, stroke and width
+
     glColor3d(color.redd(), color.greend(), color.blued());
     glBegin(GL_LINES);
     glVertex3f(x0, y0, z0);

@@ -72,15 +72,25 @@ graph_type *generate_cube(int n_layers, int m)
 
     _float_type r = 10;
     for (int k = 0; k < m * m * m; k++) {
-        graph->g->add_vertex(new vertex_styled<_float_type>(
+        // graph->g->add_vertex(new vertex_styled<_float_type>(
+        //         randint(-r, r),
+        //         randint(-r, r),
+        //         randint(-r, r)));
+        auto v = new vertex_styled<_float_type>(
                 randint(-r, r),
                 randint(-r, r),
-                randint(-r, r)));
+                randint(-r, r));
+        v->shape = shape_type::sphere;
+        v->size = 2;
+        graph->g->add_vertex(v);
     }
 
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
-#define addedge(a, b) graph->g->add_edge(                   \
-        new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]))
+#define addedge(a, b) {                                                 \
+        auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
+        e->color = color_type(50,50,50);                             \
+        graph->g->add_edge(e);                                          \
+    }
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
@@ -104,11 +114,17 @@ static int membrane_rows, membrane_lines;
 graph_type *generate_membrane(int n_layers, int rows, int lines)
 {
     graph_type *graph = new graph_type(n_layers, 
-        250,                    // f0
+        30,                     // f0
         0.02,                   // K
         0.001,                  // eps
         0.6,                    // damping
-        1.2);                   // dilation
+        0.8);                   // dilation
+
+        // 250,                    // f0
+        // 0.02,                   // K
+        // 0.001,                  // eps
+        // 0.6,                    // damping
+        // 1.2);                   // dilation
 
     _float_type r = 10;
 
@@ -121,20 +137,20 @@ graph_type *generate_membrane(int n_layers, int rows, int lines)
     }
 
     for (int kk = 0; kk < rows - 1; kk++) {
-        graph->g->add_edge(new edge_type(
+        graph->g->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[kk],
                 graph->g->vs[kk + 1]));
     }
 
     for (int kk = rows - 1; kk > 0; kk--) {
-        graph->g->add_edge(new edge_type(
+        graph->g->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[n_vertex - kk],
                 graph->g->vs[n_vertex - kk - 1]));
     }
 
     for (int k = 0; k < lines - 1; k++) {
         for (int kk = 0; kk < rows; kk++) {
-            graph->g->add_edge(new edge_type(
+            graph->g->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[rows * k + kk],
                 graph->g->vs[rows * (k + 1) + kk]));
         }
@@ -151,7 +167,7 @@ void membrane_1(graph_type *graph)
     int rows = membrane_rows, lines = membrane_lines;
     for (int k = 0; k < lines; k++) {
         for (int kk = 0; kk < rows - 1; kk++) {
-            graph->g->add_edge(new edge_type(
+            graph->g->add_edge(new edge_styled<_float_type>(
                     graph->g->vs[rows * k + kk],
                     graph->g->vs[rows * k + kk + 1]));
         }
@@ -163,7 +179,7 @@ void membrane_2(graph_type *graph)
 {
     int rows = membrane_rows, lines = membrane_lines;
     for (int kk = 0; kk < rows; kk++) {
-        graph->g->add_edge(new edge_type(
+        graph->g->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[kk],
                 graph->g->vs[rows * (lines - 1) + kk]));
     }
@@ -174,7 +190,7 @@ void membrane_3(graph_type *graph)
 {
     int rows = membrane_rows, lines = membrane_lines;
     for (int kk = 0; kk < lines; kk++) {
-        graph->g->add_edge(new edge_type(
+        graph->g->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[rows * kk],
                 graph->g->vs[rows * kk + rows - 1]));
     }
@@ -343,9 +359,7 @@ int main(int argc, char *argv[])
 
     GLFWwindow *window = glfwCreateWindow(800, 600, "Galaster", NULL, NULL);
     if (!window) {
-        fprintf( stderr, "Failed to open GLFW window. "
-            "If you have an Intel GPU, they are not 3.3 compatible. "
-            "Try the 2.1 version of the tutorials.\n" );
+        fprintf(stderr, "Failed to open GLFW window.\n");
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -370,13 +384,22 @@ int main(int argc, char *argv[])
 
     init_opengl();
 
+    // Initialize timer
+    double t, dt_total, t_old;
+    t_old = glfwGetTime() - 0.01;
+
     while (!glfwWindowShouldClose(window))
     {
-        for (int k = 0; k < 10; k++) {
+        // layout scene
+        do {
             graph->layout(1.0);
-        }
+            t = glfwGetTime();
+            dt_total = t - t_old;
+        } while (dt_total < 0.02);
+        t_old = t;
+        
+        // render scene
         draw_scene(window, graph);
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
