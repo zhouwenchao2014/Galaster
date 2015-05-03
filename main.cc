@@ -80,7 +80,7 @@ graph_type *generate_cube(int n_layers, int m)
                 randint(-r, r),
                 randint(-r, r),
                 randint(-r, r));
-        v->shape = shape_type::sphere;
+        v->shape = shape_type::cube;
         v->size = 2;
         graph->g->add_vertex(v);
     }
@@ -88,7 +88,7 @@ graph_type *generate_cube(int n_layers, int m)
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
-        e->color = color_type(50,50,50);                             \
+        e->color = color_type::white;                                   \
         graph->g->add_edge(e);                                          \
     }
 
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
     int n_vertex = 300;
     int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 8);
+    graph_type *graph = generate_cube(n_layer, 9);
     // graph_type *graph = generate_membrane(n_layer, 6, 20);
     g_graph = graph;
 

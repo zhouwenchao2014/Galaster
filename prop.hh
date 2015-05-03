@@ -9,6 +9,7 @@ enum class shape_type {
     octahedron,
     dodecahedron,
     icosahedron,
+    rhombicdodecahedron,
     cone,
     torus
 };

@@ -4,66 +4,17 @@
 
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
-
 #include "vertex_edge.hh"
 
 
-static void render_cube(int size)
-{
-    glBegin(GL_QUADS);
-    /* Front Face */
-    glNormal3f(0,0,1);
-    glVertex3f( -size, -size, size );
-    glVertex3f(  size, -size, size );
-    glVertex3f(  size,  size, size );
-    glVertex3f( -size,  size, size );
-    glEnd( );
-
-    glBegin(GL_QUADS); 
-    /* Back Face */
-    glNormal3f(0,0,-1);
-    glVertex3f( -size, -size, -size );
-    glVertex3f( -size,  size, -size );
-    glVertex3f(  size,  size, -size );
-    glVertex3f(  size, -size, -size );
-    glEnd( );
- 
-    glBegin(GL_QUADS);
-    /* Top Face */
-    glNormal3f(0,1,0);
-    glVertex3f( -size,  size, -size );
-    glVertex3f( -size,  size,  size );
-    glVertex3f(  size,  size,  size );
-    glVertex3f(  size,  size, -size );
-    glEnd( );
- 
-    glBegin(GL_QUADS);
-    /* Bottom Face */
-    glNormal3f(0,-1,0);
-    glVertex3f( -size, -size, -size );
-    glVertex3f(  size, -size, -size );
-    glVertex3f(  size, -size,  size );
-    glVertex3f( -size, -size,  size );
-    glEnd( );
- 
-    glBegin(GL_QUADS);
-    /* Right face */
-    glNormal3f(1,0,0);
-    glVertex3f( size, -size, -size );
-    glVertex3f( size,  size, -size );
-    glVertex3f( size,  size,  size );
-    glVertex3f( size, -size,  size );
-    glEnd( );
- 
-    glBegin(GL_QUADS);
-    /* Left Face */
-    glNormal3f(-1,0,0);
-    glVertex3f( -size, -size, -size );
-    glVertex3f( -size, -size,  size );
-    glVertex3f( -size,  size,  size );
-    glVertex3f( -size,  size, -size );
-    glEnd( );
-}
+void glutSolidSphere(double radius, GLint slices, GLint stacks);
+void glutSolidCube(double size);
+void glutSolidTorus(double dInnerRadius, double dOuterRadius, GLint nSides, GLint nRings );
+void glutSolidCone( double base, double height, GLint slices, GLint stacks);
+void glutSolidOctahedron(void);
+void glutSolidDodecahedron(void);
+void glutSolidIcosahedron(void);
+void glutSolidRhombicDodecahedron(void);
 
 
 // Render this vertex using OpenGL
@@ -77,17 +28,48 @@ void vertex_styled<_coord_type>::render(void) const
     glColor3d(color.redd(), color.greend(), color.blued());
     switch (shape) {
         case shape_type::sphere: {
-            GLUquadricObj* pQuadric = gluNewQuadric();
-            gluSphere(pQuadric, size, shape_detail, shape_detail);
+            glutSolidSphere(size, shape_detail, shape_detail);
             break;
         }
 
         case shape_type::cube: {
-            render_cube(size);
+            glutSolidCube(size);
             break;
         }
 
-            // TODO: handle other shape types
+        case shape_type::torus: {
+            glutSolidTorus(size * 0.5, size * 1.0, shape_detail, shape_detail);
+            break;
+        }
+
+        case shape_type::cone: {
+            glutSolidCone(size, size, shape_detail, shape_detail);
+            break;
+        }
+
+        case shape_type::octahedron: {
+            glScalef(size, size, size);
+            glutSolidOctahedron();
+            break;
+        }
+
+        case shape_type::dodecahedron: {
+            glScalef(size, size, size);
+            glutSolidDodecahedron();
+            break;
+        }
+
+        case shape_type::icosahedron: {
+            glScalef(size, size, size);
+            glutSolidIcosahedron();
+            break;
+        }
+
+        case shape_type::rhombicdodecahedron: {
+            glScalef(size, size, size);
+            glutSolidRhombicDodecahedron();
+            break;
+        }
 
         default:
             fprintf(stderr, "unknown shape type specified: %d\n", (int) shape);
