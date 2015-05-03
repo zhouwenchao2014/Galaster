@@ -1,9 +1,3 @@
-// #ifdef __APPLE__
-// #define glGenVertexArrays glGenVertexArraysAPPLE
-// #define glBindVertexArrays glBindVertexArraysAPPLE
-// #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-// #endif
-
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
@@ -81,7 +75,8 @@ graph_type *generate_cube(int n_layers, int m)
                 randint(-r, r),
                 randint(-r, r));
         v->shape = shape_type::cube;
-        v->size = 2;
+        v->size = 3;
+        v->color = color_type(0,180,255);
         graph->g->add_vertex(v);
     }
 
@@ -312,8 +307,9 @@ void init_opengl(void)
     glEnable(GL_COLOR);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_AUTO_NORMAL);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_LINE_STIPPLE);
     glEnable(GL_DEPTH_TEST);
-
 }
 
 void draw_scene(GLFWwindow* , graph_type *graph)
@@ -388,7 +384,7 @@ int main(int argc, char *argv[])
     int n_vertex = 300;
     int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 9);
+    graph_type *graph = generate_cube(n_layer, 8);
     // graph_type *graph = generate_membrane(n_layer, 6, 20);
     g_graph = graph;
 
