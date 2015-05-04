@@ -19,6 +19,11 @@ typedef vertex<_float_type> vertex_type;
 
 graph_type *g_graph;
 
+double zoom = 450;
+double theta = 0;
+double phi = 0;
+
+
 int randint(int from, int to)
 {
     int n = to - from + 1;
@@ -76,14 +81,14 @@ graph_type *generate_cube(int n_layers, int m)
                 randint(-r, r));
         v->shape = shape_type::cube;
         v->size = 3;
-        v->color = color_type(0,180,255);
+        v->color = color_type(0,50,255);
         graph->add_vertex(v);
     }
 
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
-        e->color = color_type::white;                                   \
+        e->color = color_type(50,50,50);                             \
         graph->add_edge(e);                                          \
     }
 
@@ -125,10 +130,13 @@ graph_type *generate_membrane(int n_layers, int rows, int lines)
 
     int n_vertex = rows * lines;
     for (int k = 0; k < n_vertex; k++) {
-        graph->add_vertex(new vertex_styled<_float_type>(
-                randint(-r, r),
-                randint(-r, r),
-                randint(-r, r)));
+        auto v = new vertex_styled<_float_type>(
+            randint(-r, r),
+            randint(-r, r),
+            randint(-r, r));
+        v->shape = shape_type::sphere;
+        v->size = 2;
+        graph->add_vertex(v);
     }
 
     for (int kk = 0; kk < rows - 1; kk++) {
@@ -262,6 +270,24 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);
     }
+    else if (key == 'W' and (action == 1 or action == 2)) {
+        zoom -= 10;
+    }
+    else if (key == 'S' and (action == 1 or action == 2)) {
+        zoom += 10;
+    }
+    else if (key == 262 and (action == 1 or action == 2)) {
+        theta += 1;
+    }
+    else if (key == 263 and (action == 1 or action == 2)) {
+        theta -= 1;
+    }
+    else if (key == 264 and (action == 1 or action == 2)) {
+        phi += 1;
+    }
+    else if (key == 265 and (action == 1 or action == 2)) {
+        phi -= 1;
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
@@ -295,15 +321,26 @@ void init_opengl(void)
     // Background color is black
     glClearColor(0, 0, 0, 0);
 
-    static GLfloat pos[4] = {5.f, 5.f, 10.f, 0.f};
-    // static GLfloat red[4] = {0.8f, 0.1f, 0.f, 1.f};
-    // static GLfloat green[4] = {0.f, 0.8f, 0.2f, 1.f};
-    // static GLfloat blue[4] = {0.2f, 0.2f, 1.f, 1.f};
+    // Light
+    const GLfloat light_position0[4] = {0.0f, 8.0f, 8.0f, 1.0f};
+    const GLfloat light_position1[4] = {0.0f, -8.0f, -8.0f, 1.0f};
+    const GLfloat light_diffuse[4]  = {1.0f, 1.0f, 1.0f, 1.0f};
+    const GLfloat light_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    const GLfloat light_ambient[4]  = {0.5f, 0.5f, 0.5f, 1.0f};
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
-    glLightfv(GL_LIGHT0, GL_POSITION, pos);
+    // Enable OpenGL features
     glEnable(GL_CULL_FACE);
-    glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHTING);
     glEnable(GL_COLOR);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_AUTO_NORMAL);
@@ -311,6 +348,7 @@ void init_opengl(void)
     glEnable(GL_LINE_STIPPLE);
     glEnable(GL_DEPTH_TEST);
 }
+
 
 void draw_scene(GLFWwindow* , graph_type *graph)
 {
@@ -320,15 +358,14 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     // We don't want to modify the projection matrix
     glMatrixMode(GL_MODELVIEW);
     
-    // Move back
-    double zoom = 350;
-
     for (auto v : graph->g->vs) {
         glLoadIdentity();
         gluLookAt(
             0, 0, -zoom,
             0, 0, 0,
             0, 1, 0);
+        glRotatef(theta, 0, 1, 0);
+        glRotatef(phi, 1, 0, 0);
         static_cast<vertex_styled<_float_type> *>(v)->render();
 
         for (auto e : v->es) {
@@ -338,6 +375,8 @@ void draw_scene(GLFWwindow* , graph_type *graph)
                     0, 0, -zoom,
                     0, 0, 0,
                     0, 1, 0);
+                glRotatef(theta, 0, 1, 0);
+                glRotatef(phi, 1, 0, 0);
                 static_cast<edge_styled<_float_type> *>(e)->render();
             }
         }
