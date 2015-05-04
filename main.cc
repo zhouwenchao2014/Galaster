@@ -357,26 +357,23 @@ void draw_scene(GLFWwindow* , graph_type *graph)
 
     // We don't want to modify the projection matrix
     glMatrixMode(GL_MODELVIEW);
+
+    GLfloat modelview[4 * 4];
+    glLoadIdentity();
+    gluLookAt(
+        0, 0, -zoom,
+        0, 0, 0,
+        0, 1, 0);
+    glRotatef(theta, 0, 1, 0);
+    glRotatef(phi, 1, 0, 0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
     
     for (auto v : graph->g->vs) {
-        glLoadIdentity();
-        gluLookAt(
-            0, 0, -zoom,
-            0, 0, 0,
-            0, 1, 0);
-        glRotatef(theta, 0, 1, 0);
-        glRotatef(phi, 1, 0, 0);
+        glLoadMatrixf(modelview);
         static_cast<vertex_styled<_float_type> *>(v)->render();
-
         for (auto e : v->es) {
             if (e->a != e->b and e->a == v) {
-                glLoadIdentity();
-                gluLookAt(
-                    0, 0, -zoom,
-                    0, 0, 0,
-                    0, 1, 0);
-                glRotatef(theta, 0, 1, 0);
-                glRotatef(phi, 1, 0, 0);
+                glLoadMatrixf(modelview);
                 static_cast<edge_styled<_float_type> *>(e)->render();
             }
         }
