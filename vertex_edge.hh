@@ -117,7 +117,7 @@ public:
         
     vertex<_coord_type> *a;
     vertex<_coord_type> *b;
-    double strength = 1.0;
+    _coord_type strength = 1.0;
     int cnt = 0;
     bool refcounted: 1;
     bool oriented: 1;

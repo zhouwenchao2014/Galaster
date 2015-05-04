@@ -12,9 +12,11 @@
 template <typename _coord_type>
 void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
 {
+    typedef typename layer<_coord_type>::float_type float_type;
+
     // move vertices with verlet integration on this layer
     for (auto v : vs) {
-        v->delta = v->dx * dt + (0.5 * dt*dt) * v->ddx;
+        v->delta = v->dx * dt + (float_type(0.5) * dt*dt) * v->ddx;
         v->delta.bound(3);
         v->x += v->delta;
     }
@@ -58,14 +60,14 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
     if (coarser) {
         for (auto v : vs) {
             v->ddx_ += dilation * v->coarser->ddx;
-            v->dx += 0.5 * (v->ddx + v->ddx_) * dt;
+            v->dx += float_type(0.5) * (v->ddx + v->ddx_) * dt;
             v->dx *= damping;
             v->ddx = v->ddx_;
         }
     }
     else {
         for (auto v : vs) {
-            v->dx += 0.5 * (v->ddx + v->ddx_) * dt;
+            v->dx += float_type(0.5) * (v->ddx + v->ddx_) * dt;
             v->dx *= damping;
             v->ddx = v->ddx_;
         }
