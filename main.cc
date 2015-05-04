@@ -19,9 +19,42 @@ typedef vertex<_float_type> vertex_type;
 
 graph_type *g_graph;
 
-double zoom = 450;
-double theta = 0;
-double phi = 0;
+
+struct camera_view_type
+{
+    double zoom = 450;
+    double theta = 0;
+    double phi = 0;
+    double d_theta = 0;
+    double d_phi = 0;
+    double step = 0.1;
+
+    void on_left(void) {
+        if (d_theta > 0) d_theta = 0;
+        else d_theta -= step;
+    }
+
+    void on_right(void) {
+        if (d_theta < 0) d_theta = 0;
+        else d_theta += step;
+    }
+
+    void on_up(void) {
+        if (d_phi > 0) d_phi = 0;
+        else d_phi -= step;
+    }
+
+    void on_down(void) {
+        if (d_phi < 0) d_phi = 0;
+        else d_phi += step;
+    }
+
+    void update_view(void) {
+        theta += d_theta;
+        phi += d_phi;
+    }
+    
+} camera_view;
 
 
 int randint(int from, int to)
@@ -30,211 +63,7 @@ int randint(int from, int to)
     return rand() % n + from;
 }
 
-graph_type *generate_random_graph(int n_layers, int n_vertex, int n_edge)
-{
-    graph_type *graph = new graph_type(n_layers, 
-        250,                    // f0
-        0.02,                   // K
-        0.001,                  // eps
-        0.6,                    // damping
-        1.2);                   // dilation
-
-    _float_type r = 10;
-    for (int k = 0; k < n_vertex; k++) {
-        graph->add_vertex(new vertex_styled<_float_type>(
-                randint(-r, r),
-                randint(-r, r),
-                randint(-r, r)));
-    }
-
-    for (int k = 0; k < n_vertex - 1; k++) {
-        int ne = randint(1, n_edge);
-        for (int n = 0; n < ne; n++) {
-            int x2 = randint(k + 1, n_vertex - 1);
-            graph->add_edge(new edge_type(
-                    graph->g->vs[k], graph->g->vs[x2],
-                    false, true));
-        }
-    }
-
-    return graph;
-}
-
-graph_type *generate_cube(int n_layers, int m)
-{
-    graph_type *graph = new graph_type(n_layers, 
-        30,                     // f0
-        0.02,                   // K
-        0.001,                  // eps
-        0.6,                    // damping
-        0.8);                   // dilation
-
-    _float_type r = 10;
-    for (int k = 0; k < m * m * m; k++) {
-        // graph->add_vertex(new vertex_styled<_float_type>(
-        //         randint(-r, r),
-        //         randint(-r, r),
-        //         randint(-r, r)));
-        auto v = new vertex_styled<_float_type>(
-                randint(-r, r),
-                randint(-r, r),
-                randint(-r, r));
-        v->shape = shape_type::cube;
-        v->size = 3;
-        v->color = color_type(0,50,255);
-        graph->add_vertex(v);
-    }
-
-#define idx(i,j,k) (i)*m*m + (j)*m + (k)
-#define addedge(a, b) {                                                 \
-        auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
-        e->color = color_type(50,50,50);                             \
-        graph->add_edge(e);                                          \
-    }
-
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            for (int k = 0; k < m; k++) {
-                if (i > 0) addedge(idx(i,j,k), idx(i-1,j,k));
-                if (j > 0) addedge(idx(i,j,k), idx(i,j-1,k));
-                if (k > 0) addedge(idx(i,j,k), idx(i,j,k-1));
-            }
-        }
-    }
-
-#undef addedge
-#undef idx
-
-    return graph;
-}
-
-static int membrane_mode;
-static int membrane_rows, membrane_lines;
-
-graph_type *generate_membrane(int n_layers, int rows, int lines)
-{
-    graph_type *graph = new graph_type(n_layers, 
-        30,                     // f0
-        0.02,                   // K
-        0.001,                  // eps
-        0.6,                    // damping
-        0.8);                   // dilation
-
-        // 250,                    // f0
-        // 0.02,                   // K
-        // 0.001,                  // eps
-        // 0.6,                    // damping
-        // 1.2);                   // dilation
-
-    _float_type r = 10;
-
-    int n_vertex = rows * lines;
-    for (int k = 0; k < n_vertex; k++) {
-        auto v = new vertex_styled<_float_type>(
-            randint(-r, r),
-            randint(-r, r),
-            randint(-r, r));
-        v->shape = shape_type::sphere;
-        v->size = 2;
-        graph->add_vertex(v);
-    }
-
-    for (int kk = 0; kk < rows - 1; kk++) {
-        graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[kk],
-                graph->g->vs[kk + 1]));
-    }
-
-    for (int kk = rows - 1; kk > 0; kk--) {
-        graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[n_vertex - kk],
-                graph->g->vs[n_vertex - kk - 1]));
-    }
-
-    for (int k = 0; k < lines - 1; k++) {
-        for (int kk = 0; kk < rows; kk++) {
-            graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[rows * k + kk],
-                graph->g->vs[rows * (k + 1) + kk]));
-        }
-    }
-
-    membrane_mode = 0;
-    membrane_rows = rows;
-    membrane_lines = lines;
-    return graph;
-}
-
-void membrane_1(graph_type *graph)
-{
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int k = 0; k < lines; k++) {
-        for (int kk = 0; kk < rows - 1; kk++) {
-            graph->add_edge(new edge_styled<_float_type>(
-                    graph->g->vs[rows * k + kk],
-                    graph->g->vs[rows * k + kk + 1]));
-        }
-    }
-    membrane_mode = 1;
-}
-
-void membrane_2(graph_type *graph)
-{
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < rows; kk++) {
-        graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[kk],
-                graph->g->vs[rows * (lines - 1) + kk]));
-    }
-    membrane_mode = 2;
-}
-
-void membrane_3(graph_type *graph)
-{
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < lines; kk++) {
-        graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[rows * kk],
-                graph->g->vs[rows * kk + rows - 1]));
-    }
-    membrane_mode = 3;
-}
-
-void membrane_4(graph_type *graph)
-{
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < lines; kk++) {
-        graph->g->remove_edge(
-            graph->g->vs[rows * kk]->shared_edge(
-                graph->g->vs[rows * kk + rows - 1]));
-    }
-    membrane_mode = 4;
-}
-
-void membrane_5(graph_type *graph)
-{
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < rows; kk++) {
-        graph->g->remove_edge(
-            graph->g->vs[kk]->shared_edge(
-                graph->g->vs[rows * (lines - 1) + kk]));
-    }
-    membrane_mode = 5;
-}
-
-void membrane_6(graph_type *graph)
-{
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int k = 0; k < lines; k++) {
-        for (int kk = 0; kk < rows - 1; kk++) {
-            graph->g->remove_edge(
-                graph->g->vs[rows * k + kk]->shared_edge(
-                    graph->g->vs[rows * k + kk + 1]));
-        }
-    }
-    membrane_mode = 0;
-}
-
+#include "testgraph.hh"
 
 
 void error_callback(int error, const char *description)
@@ -247,9 +76,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     printf("window: %p, key: %d, scancode: %d, action: %d, mods: %d\n",
         (void *) window, key, scancode, action, mods);
-    if (key == 'R' and action == 0) {
+    if (key == 'R' and action == GLFW_RELEASE) {
         for (auto v : g_graph->g->vs) {
-            _float_type r = 10;
+            _float_type r = 5;
             v->x = vector3d<_float_type>(
                 randint(-r, r),
                 randint(-r, r),
@@ -259,7 +88,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             }
         }
     }
-    else if (key == 'N' and action == 0) {
+    else if (key == 'N' and action == GLFW_RELEASE) {
         if (membrane_mode == 0) membrane_1(g_graph);
         else if (membrane_mode == 1) membrane_2(g_graph);
         else if (membrane_mode == 2) membrane_3(g_graph);
@@ -270,23 +99,23 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);
     }
-    else if (key == 'W' and (action == 1 or action == 2)) {
-        zoom -= 10;
+    else if (key == 'W' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.zoom -= 10;
     }
-    else if (key == 'S' and (action == 1 or action == 2)) {
-        zoom += 10;
+    else if (key == 'S' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.zoom += 10;
     }
-    else if (key == 262 and (action == 1 or action == 2)) {
-        theta += 1;
+    else if (key == 262 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.on_right();
     }
-    else if (key == 263 and (action == 1 or action == 2)) {
-        theta -= 1;
+    else if (key == 263 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.on_left();
     }
-    else if (key == 264 and (action == 1 or action == 2)) {
-        phi += 1;
+    else if (key == 264 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.on_down();
     }
-    else if (key == 265 and (action == 1 or action == 2)) {
-        phi -= 1;
+    else if (key == 265 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.on_up();
     }
 }
 
@@ -359,13 +188,14 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     glMatrixMode(GL_MODELVIEW);
 
     GLfloat modelview[4 * 4];
+    camera_view.update_view();
     glLoadIdentity();
     gluLookAt(
-        0, 0, -zoom,
+        0, 0, -camera_view.zoom,
         0, 0, 0,
         0, 1, 0);
-    glRotatef(theta, 0, 1, 0);
-    glRotatef(phi, 1, 0, 0);
+    glRotatef(camera_view.theta, 0, 1, 0);
+    glRotatef(camera_view.phi, 1, 0, 0);
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
     
     for (auto v : graph->g->vs) {
@@ -420,8 +250,8 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 8);
-    // graph_type *graph = generate_membrane(n_layer, 6, 20);
+    // graph_type *graph = generate_cube(n_layer, 9);
+    graph_type *graph = generate_membrane(n_layer, 6, 20);
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);
@@ -446,7 +276,7 @@ int main(int argc, char *argv[])
             dt_total = t - t_old;
         } while (dt_total < 0.02);
         t_old = t;
-        
+
         // render scene
         draw_scene(window, graph);
         glfwSwapBuffers(window);
