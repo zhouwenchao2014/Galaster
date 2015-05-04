@@ -57,8 +57,8 @@ graph_type *generate_cube(int n_layers, int m)
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
-        e->color = color_type(50,50,50);                             \
-        graph->add_edge(e);                                          \
+        e->color = color_type(100,100,100);                             \
+        graph->add_edge(e);                                             \
     }
 
     for (int i = 0; i < m; i++) {

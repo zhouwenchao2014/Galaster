@@ -165,16 +165,13 @@ void init_opengl(void)
     // Light
     const GLfloat light_position0[4] = {0.0f, 8.0f, 8.0f, 1.0f};
     const GLfloat light_position1[4] = {0.0f, -8.0f, -8.0f, 1.0f};
-    const GLfloat light_diffuse[4]  = {1.0f, 1.0f, 1.0f, 1.0f};
     const GLfloat light_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    const GLfloat light_ambient[4]  = {0.5f, 0.5f, 0.5f, 1.0f};
+    const GLfloat light_ambient[4]  = {0.2f, 0.2f, 0.2f, 1.0f};
     glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, light_ambient);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
-    glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT1, GL_AMBIENT_AND_DIFFUSE, light_ambient);
     glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
     // Enable OpenGL features
@@ -262,8 +259,8 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    // graph_type *graph = generate_cube(n_layer, 9);
-    graph_type *graph = generate_membrane(n_layer, 6, 20);
+    graph_type *graph = generate_cube(n_layer, 9);
+    // graph_type *graph = generate_membrane(n_layer, 6, 20);
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);
