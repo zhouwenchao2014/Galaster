@@ -111,10 +111,76 @@ public:
     typedef float coord_type;
 	static const vector3d<float> zero;
     __m128 v;
+
+    vector3d<float>& operator *= (float a) {
+        __m128 va = _mm_set1_ps(a);
+        v = _mm_mul_ps(v, va);
+        return *this;
+    }
+
+    vector3d<float>& operator += (const vector3d<float> &r) {
+        v = _mm_add_ps(v, r.v);
+        return *this;
+    }
+
+    vector3d<float>& operator -= (const vector3d<float> &r) {
+        v = _mm_sub_ps(v, r.v);
+        return *this;
+    }
+
+    void bound(float b) {
+        __m128 vb = _mm_set1_ps(b);
+        __m128 vnb = _mm_set1_ps(-b);
+        v = _mm_min_ps(v, vb);
+        v = _mm_max_ps(v, vnb);
+    }
+
+    void coord(float &x, float &y, float &z) const {
+        float buf[4];
+        _mm_store_ps(buf, v);
+        x = buf[0];
+        y = buf[1];
+        z = buf[2];
+    }
+
+    float mod(void) const {
+        float buf[4];
+        __m128 t = v;
+        t = _mm_mul_ps(t, t);
+        _mm_store_ps(buf, t);
+        return sqrt(buf[0] + buf[1] + buf[2]);
+    }
 };
 
 const vector3d<float> vector3d<float>::zero(.0, .0, .0);
 
+vector3d<float> operator * (float a, const vector3d<float> &x)
+{
+    vector3d<float> res(x);
+    res *= a;
+    return res;
+}
+
+vector3d<float> operator * (const vector3d<float> &x, float a)
+{
+    return a * x;
+}
+
+vector3d<float> operator + (
+    const vector3d<float> &a, const vector3d<float> &b)
+{
+    vector3d<float> c(a);
+    c += b;
+    return c;
+}
+
+vector3d<float> operator - (
+    const vector3d<float> &a, const vector3d<float> &b)
+{
+    vector3d<float> c(a);
+    c -= b;
+    return c;
+}
 
 #endif
 

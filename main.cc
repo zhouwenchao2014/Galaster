@@ -8,8 +8,8 @@
 #include <unistd.h>
 
 
-typedef double _float_type;
-// typedef float _float_type;
+// typedef double _float_type;
+typedef float _float_type;
 
 typedef graph<_float_type> graph_type;
 typedef layer<_float_type> layer_type;
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 8);
+    graph_type *graph = generate_cube(n_layer, 10);
     // graph_type *graph = generate_membrane(n_layer, 6, 20);
     g_graph = graph;
 
