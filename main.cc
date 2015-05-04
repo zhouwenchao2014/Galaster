@@ -36,7 +36,7 @@ graph_type *generate_random_graph(int n_layers, int n_vertex, int n_edge)
 
     _float_type r = 10;
     for (int k = 0; k < n_vertex; k++) {
-        graph->g->add_vertex(new vertex_styled<_float_type>(
+        graph->add_vertex(new vertex_styled<_float_type>(
                 randint(-r, r),
                 randint(-r, r),
                 randint(-r, r)));
@@ -46,7 +46,7 @@ graph_type *generate_random_graph(int n_layers, int n_vertex, int n_edge)
         int ne = randint(1, n_edge);
         for (int n = 0; n < ne; n++) {
             int x2 = randint(k + 1, n_vertex - 1);
-            graph->g->add_edge(new edge_type(
+            graph->add_edge(new edge_type(
                     graph->g->vs[k], graph->g->vs[x2],
                     false, true));
         }
@@ -66,7 +66,7 @@ graph_type *generate_cube(int n_layers, int m)
 
     _float_type r = 10;
     for (int k = 0; k < m * m * m; k++) {
-        // graph->g->add_vertex(new vertex_styled<_float_type>(
+        // graph->add_vertex(new vertex_styled<_float_type>(
         //         randint(-r, r),
         //         randint(-r, r),
         //         randint(-r, r)));
@@ -77,14 +77,14 @@ graph_type *generate_cube(int n_layers, int m)
         v->shape = shape_type::cube;
         v->size = 3;
         v->color = color_type(0,180,255);
-        graph->g->add_vertex(v);
+        graph->add_vertex(v);
     }
 
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
         e->color = color_type::white;                                   \
-        graph->g->add_edge(e);                                          \
+        graph->add_edge(e);                                          \
     }
 
     for (int i = 0; i < m; i++) {
@@ -125,27 +125,27 @@ graph_type *generate_membrane(int n_layers, int rows, int lines)
 
     int n_vertex = rows * lines;
     for (int k = 0; k < n_vertex; k++) {
-        graph->g->add_vertex(new vertex_styled<_float_type>(
+        graph->add_vertex(new vertex_styled<_float_type>(
                 randint(-r, r),
                 randint(-r, r),
                 randint(-r, r)));
     }
 
     for (int kk = 0; kk < rows - 1; kk++) {
-        graph->g->add_edge(new edge_styled<_float_type>(
+        graph->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[kk],
                 graph->g->vs[kk + 1]));
     }
 
     for (int kk = rows - 1; kk > 0; kk--) {
-        graph->g->add_edge(new edge_styled<_float_type>(
+        graph->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[n_vertex - kk],
                 graph->g->vs[n_vertex - kk - 1]));
     }
 
     for (int k = 0; k < lines - 1; k++) {
         for (int kk = 0; kk < rows; kk++) {
-            graph->g->add_edge(new edge_styled<_float_type>(
+            graph->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[rows * k + kk],
                 graph->g->vs[rows * (k + 1) + kk]));
         }
@@ -162,7 +162,7 @@ void membrane_1(graph_type *graph)
     int rows = membrane_rows, lines = membrane_lines;
     for (int k = 0; k < lines; k++) {
         for (int kk = 0; kk < rows - 1; kk++) {
-            graph->g->add_edge(new edge_styled<_float_type>(
+            graph->add_edge(new edge_styled<_float_type>(
                     graph->g->vs[rows * k + kk],
                     graph->g->vs[rows * k + kk + 1]));
         }
@@ -174,7 +174,7 @@ void membrane_2(graph_type *graph)
 {
     int rows = membrane_rows, lines = membrane_lines;
     for (int kk = 0; kk < rows; kk++) {
-        graph->g->add_edge(new edge_styled<_float_type>(
+        graph->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[kk],
                 graph->g->vs[rows * (lines - 1) + kk]));
     }
@@ -185,7 +185,7 @@ void membrane_3(graph_type *graph)
 {
     int rows = membrane_rows, lines = membrane_lines;
     for (int kk = 0; kk < lines; kk++) {
-        graph->g->add_edge(new edge_styled<_float_type>(
+        graph->add_edge(new edge_styled<_float_type>(
                 graph->g->vs[rows * kk],
                 graph->g->vs[rows * kk + rows - 1]));
     }
@@ -381,8 +381,8 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
     int n_layer = 6;
-    int n_vertex = 300;
-    int n_edges = 3;
+    // int n_vertex = 300;
+    // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
     graph_type *graph = generate_cube(n_layer, 8);
     // graph_type *graph = generate_membrane(n_layer, 6, 20);

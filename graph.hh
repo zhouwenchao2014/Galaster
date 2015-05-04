@@ -39,6 +39,16 @@ public:
         for (auto layer : layers) delete layer;
     }
 
+    // 
+    // interfaces exposed to other languages
+    // 
+
+    void add_vertex(vertex_type *v) { g->add_vertex(v); }
+    void remove_vertex(vertex_type *v) { g->remove_vertex(v); }
+    edge_type *add_edge(edge_type *e) { return g->add_edge(e); }
+    void remove_edge(edge_type *e) { g->remove_edge(e); }
+    std::vector<vertex_type *> &vertex_list(void) { return g->vs; }
+
     void layout(float_type dt)
     {
         for (auto i = layers.rbegin(); i != layers.rend(); ++i) {
