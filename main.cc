@@ -69,10 +69,10 @@ struct camera_view_type
 } camera_view;
 
 
-int randint(int from, int to)
+double rand_range(double from, double to)
 {
-    int n = to - from + 1;
-    return rand() % n + from;
+    double n = to - from + 1;
+    return rand() * n / RAND_MAX + from;
 }
 
 #include "testgraph.hh"
@@ -92,9 +92,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         for (auto v : g_graph->g->vs) {
             _float_type r = 5;
             v->x = vector3d<_float_type>(
-                randint(-r, r),
-                randint(-r, r),
-                randint(-r, r));
+                rand_range(-r, r),
+                rand_range(-r, r),
+                rand_range(-r, r));
             for (vertex_type *cv = v->coarser; cv != nullptr; cv = cv->coarser) {
                 cv->x = v->x;
             }

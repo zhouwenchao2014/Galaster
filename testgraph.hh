@@ -11,15 +11,15 @@ graph_type *generate_random_graph(int n_layers, int n_vertex, int n_edge)
     _float_type r = 5;
     for (int k = 0; k < n_vertex; k++) {
         graph->add_vertex(new vertex_styled<_float_type>(
-                randint(-r, r),
-                randint(-r, r),
-                randint(-r, r)));
+                rand_range(-r, r),
+                rand_range(-r, r),
+                rand_range(-r, r)));
     }
 
     for (int k = 0; k < n_vertex - 1; k++) {
-        int ne = randint(1, n_edge);
+        int ne = rand_range(1, n_edge);
         for (int n = 0; n < ne; n++) {
-            int x2 = randint(k + 1, n_vertex - 1);
+            int x2 = rand_range(k + 1, n_vertex - 1);
             graph->add_edge(new edge_type(
                     graph->g->vs[k], graph->g->vs[x2],
                     false, true));
@@ -40,14 +40,10 @@ graph_type *generate_cube(int n_layers, int m)
 
     _float_type r = 5;
     for (int k = 0; k < m * m * m; k++) {
-        // graph->add_vertex(new vertex_styled<_float_type>(
-        //         randint(-r, r),
-        //         randint(-r, r),
-        //         randint(-r, r)));
         auto v = new vertex_styled<_float_type>(
-                randint(-r, r),
-                randint(-r, r),
-                randint(-r, r));
+                rand_range(-r, r),
+                rand_range(-r, r),
+                rand_range(-r, r));
         v->shape = shape_type::cube;
         v->size = 3;
         v->color = color_type(0,50,255);
@@ -100,9 +96,9 @@ graph_type *generate_membrane(int n_layers, int rows, int lines)
     int n_vertex = rows * lines;
     for (int k = 0; k < n_vertex; k++) {
         auto v = new vertex_styled<_float_type>(
-            randint(-r, r),
-            randint(-r, r),
-            randint(-r, r));
+            rand_range(-r, r),
+            rand_range(-r, r),
+            rand_range(-r, r));
         v->shape = shape_type::sphere;
         v->size = 2;
         graph->add_vertex(v);
