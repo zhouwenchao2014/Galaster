@@ -27,7 +27,18 @@ struct camera_view_type
     double phi = 0;
     double d_theta = 0;
     double d_phi = 0;
+    double d_zoom = 0;
     double step = 0.1;
+
+    void on_forward(void) {
+        if (d_zoom > 0) d_zoom = 0;
+        else d_zoom -= step;
+    }
+
+    void on_backward(void) {
+        if (d_zoom < 0) d_zoom = 0;
+        else d_zoom += step;
+    }
 
     void on_left(void) {
         if (d_theta > 0) d_theta = 0;
@@ -50,6 +61,7 @@ struct camera_view_type
     }
 
     void update_view(void) {
+        zoom += d_zoom;
         theta += d_theta;
         phi += d_phi;
     }
@@ -100,10 +112,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwSetWindowShouldClose(window, true);
     }
     else if (key == 'W' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.zoom -= 10;
+        camera_view.on_forward();
     }
     else if (key == 'S' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.zoom += 10;
+        camera_view.on_backward();
     }
     else if (key == 262 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
         camera_view.on_right();
