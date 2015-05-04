@@ -2,5 +2,5 @@
 *.dot
 *.pdf
 run
-run.dSYM
+*.dSYM
 out
