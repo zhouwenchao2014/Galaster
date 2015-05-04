@@ -28,16 +28,18 @@ struct camera_view_type
     double d_theta = 0;
     double d_phi = 0;
     double d_zoom = 0;
+    double zoom_factor = 1;
+    double d_zoom_factor = 0;
     double step = 0.1;
 
     void on_forward(void) {
-        if (d_zoom > 0) d_zoom = 0;
-        else d_zoom -= step;
+        if (d_zoom_factor > 0) d_zoom_factor = 0;
+        else d_zoom_factor -= step;
     }
 
     void on_backward(void) {
-        if (d_zoom < 0) d_zoom = 0;
-        else d_zoom += step;
+        if (d_zoom_factor < 0) d_zoom_factor = 0;
+        else d_zoom_factor += step;
     }
 
     void on_left(void) {
@@ -60,10 +62,12 @@ struct camera_view_type
         else d_phi += step;
     }
 
-    void update_view(void) {
+    void update_view(double new_zoom) {
+        d_zoom = ((new_zoom + zoom_factor) - zoom) * 0.05;
         zoom += d_zoom;
         theta += d_theta;
         phi += d_phi;
+        zoom_factor += d_zoom_factor;
     }
     
 } camera_view;
@@ -197,7 +201,12 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     glMatrixMode(GL_MODELVIEW);
 
     GLfloat modelview[4 * 4];
-    camera_view.update_view();
+
+    _float_type x_min, x_max, y_min, y_max, z_min, z_max;
+    graph->g->bounding_box(x_min, x_max, y_min, y_max, z_min, z_max);
+    _float_type l = std::max(std::max(x_max - x_min, y_max - y_min), z_max - z_min);
+    camera_view.update_view(l);
+
     glLoadIdentity();
     gluLookAt(
         0, 0, -camera_view.zoom,
@@ -259,8 +268,8 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 9);
-    // graph_type *graph = generate_membrane(n_layer, 6, 20);
+    // graph_type *graph = generate_cube(n_layer, 9);
+    graph_type *graph = generate_membrane(n_layer, 6, 20);
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);

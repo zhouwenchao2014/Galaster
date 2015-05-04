@@ -75,4 +75,35 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
 }
 
 
+// 
+// Figure out the size of the bounding box of the graph
+// 
+template <typename _coord_type>
+void layer<_coord_type>::bounding_box(
+    _coord_type &x_min, _coord_type &x_max,
+    _coord_type &y_min, _coord_type &y_max,
+    _coord_type &z_min, _coord_type &z_max)
+{
+    _coord_type xmin = -10, xmax = 10;
+    _coord_type ymin = -10, ymax = 10;
+    _coord_type zmin = -10, zmax = 10;
+
+    for (auto v : vs) {
+        _coord_type x, y, z;
+        v->x.coord(x, y, z);
+        xmin = std::min(xmin, x);
+        xmax = std::max(xmax, x);
+        ymin = std::min(ymin, y);
+        ymax = std::max(ymax, y);
+        zmin = std::min(zmin, z);
+        zmax = std::max(zmax, z);
+    }
+
+    x_min = xmin; x_max = xmax;
+    y_min = ymin; y_max = ymax;
+    z_min = zmin; z_max = zmax;
+}
+    
+
+
 #endif /* _LAYOUT_H_ */

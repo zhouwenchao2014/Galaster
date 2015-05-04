@@ -129,6 +129,14 @@ public:
     // 
 	void layout(float_type dt);
 
+    // 
+    // Figure out the size of the bounding box of the graph
+    // 
+    void bounding_box(
+        float_type &x_min, float_type &x_max,
+        float_type &y_min, float_type &y_max,
+        float_type &z_min, float_type &z_max);
+
 protected:
 
     // match edge from a to b, so that a and b would be merged into the same matched
