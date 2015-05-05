@@ -46,8 +46,8 @@ void layer<_coord_type>::layout(typename layer<_coord_type>::float_type dt)
                 F_p -= K * dx * e->strength;
                 if (e->oriented) {
                     F_p += ((e->b == v)? 
-                        vector3d_type(0, -0.2, 0):
-                        vector3d_type(0,  0.2, 0));
+                        vector3d_type(0, -0.4, 0):
+                        vector3d_type(0,  0.4, 0));
                 }
             }
         }
