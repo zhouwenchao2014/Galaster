@@ -9,6 +9,13 @@
    below so if you are interested in this project please stay tuned or make
    contributions through pull requests.
 
+** Galaster In Action
+
+   [[mov/cube.gif]]
+   [[mov/dyn.gif]]
+   [[mov/tree.gif]]
+   [[mov/treerap.gif]]
+
 ** Future Works
 
    - RPC based API and bindings for various programming languages
