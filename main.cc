@@ -294,9 +294,9 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    // graph_type *graph = generate_cube(n_layer, 9);
+    graph_type *graph = generate_cube(n_layer, 8);
     // graph_type *graph = generate_membrane(n_layer, 8, 30);
-    graph_type *graph = generate_binary_tree(n_layer);
+    // graph_type *graph = generate_binary_tree(n_layer);
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);
