@@ -1,0 +1,19 @@
+* Galaster - A 3D Dynamic Graph Visualizer
+
+
+** Overview
+
+   Galaster is a system for visualizing dynamic graphs. Currently it is not usable
+   and still needs lots of development efforts, you can compile this half-way done
+   prototype and preview the dynamic graphs in action. Works to be done is listed
+   below so if you are interested in this project please stay tuned or make
+   contributions through pull requests.
+
+** Future Works
+
+   - RPC based API and bindings for various programming languages
+   - Spline edges and arrows
+   - Fast repulsion force calculation algorithm
+   - Rendering text labels
+   - Smarter auto camera
+   - Proper rendering options to make edges look consistent in various view angles

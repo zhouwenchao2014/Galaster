@@ -229,7 +229,7 @@ struct binary_tree {
         vecx.coord(x, y, z);
         vertex = new vertex_styled<_float_type>(
             x + rand_range(-0.5, 0.5), 
-            y + rand_range(-0.5, 0.5), 
+            y + rand_range(0.5, 1.0), 
             z + rand_range(-0.5, 0.5));
         vertex->shape = shape_type::sphere;
         vertex->size = 3;
