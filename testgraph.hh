@@ -232,9 +232,9 @@ struct binary_tree {
             y + rand_range(-0.5, 0.5), 
             z + rand_range(-0.5, 0.5));
         vertex->shape = shape_type::sphere;
-        vertex->size = 2;
+        vertex->size = 3;
         vertex->visible = false;
-        // graph->add_vertex(vertex);
+        graph->add_vertex(vertex);
     }
 
     void add(int k) {
@@ -247,7 +247,6 @@ struct binary_tree {
                 left_edge->visible = false;
 
                 // usleep(5000);
-                graph->add_vertex(left->vertex);
                 graph->add_edge(left_edge);
                 // usleep(10000);
 
@@ -256,7 +255,7 @@ struct binary_tree {
                 left_edge->visible = true;
                 left->vertex->visible = true;
                 // usleep(10000);
-                left_edge->color = color_type::blue;
+                left_edge->color = color_type(100, 200, 100);
                 left->vertex->color = color_type::blue;
             }
             else {
@@ -266,7 +265,7 @@ struct binary_tree {
                 
                 left->vertex->color = color_type::white;
                 // usleep(5000);
-                left_edge->color = color_type::blue;
+                left_edge->color = color_type(100, 200, 100);
                 left->vertex->color = color_type::blue;
             }
         }
@@ -279,7 +278,6 @@ struct binary_tree {
                 right_edge->visible = false;
 
                 // usleep(5000);
-                graph->add_vertex(right->vertex);
                 graph->add_edge(right_edge);
                 // usleep(10000);
 
@@ -288,7 +286,7 @@ struct binary_tree {
                 right_edge->visible = true;
                 right->vertex->visible = true;
                 // usleep(10000);
-                right_edge->color = color_type::blue;
+                right_edge->color = color_type(100, 200, 100);
                 right->vertex->color = color_type::blue;
 
             }
@@ -297,7 +295,7 @@ struct binary_tree {
                 // usleep(5000);
                 right->add(k);
                 // usleep(5000);
-                right_edge->color = color_type::blue;
+                right_edge->color = color_type(100, 200, 100);
                 right->vertex->color = color_type::blue;
             }
         }
@@ -329,12 +327,11 @@ graph_type *generate_binary_tree(int n_layers)
         0.6,                    // damping
         0.8);                   // dilation
 
-    g_binary_tree = new binary_tree(graph, 1000, vector3d<_float_type>(0, 5, 0));
+    g_binary_tree = new binary_tree(graph, 1000, vector3d<_float_type>(0, 20, 0));
     g_binary_tree->vertex->color = color_type::green;
     g_binary_tree->vertex->shape = shape_type::cube;
-    g_binary_tree->vertex->size = 5;
+    g_binary_tree->vertex->size = 10;
     g_binary_tree->vertex->visible = true;
-    graph->add_vertex(g_binary_tree->vertex);
 
     return graph;
 }

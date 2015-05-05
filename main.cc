@@ -128,16 +128,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                     usleep(500);
                 }
             });
-        // binary_tree_add_node(); // usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
-        // binary_tree_add_node(); usleep(1000);
     }
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);

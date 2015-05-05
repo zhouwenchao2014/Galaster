@@ -6,7 +6,7 @@
 typedef double _float_type;
 // typedef float _float_type;
 
-// #define DBG_VERIFY_INTEGRITY
+#define DBG_VERIFY_INTEGRITY
 
 typedef graph<_float_type> graph_type;
 typedef layer<_float_type> layer_type;
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
     int n_layer = 6;
-    int n_vertex = 100;
+    int n_vertex = 1000;
     int n_edges = 3;
     random_test(n_layer, n_vertex, n_vertex * n_edges * 2);
     // layout_test(n_layer, n_vertex, n_edges);
