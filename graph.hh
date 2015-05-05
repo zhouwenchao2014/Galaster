@@ -3,6 +3,7 @@
 
 
 #include "layer.hh"
+#include <mutex>
 
 
 template <typename _coord_type>
@@ -43,19 +44,34 @@ public:
     // interfaces exposed to other languages
     // 
 
-    void add_vertex(vertex_type *v) { g->add_vertex(v); }
-    void remove_vertex(vertex_type *v) { g->remove_vertex(v); }
-    edge_type *add_edge(edge_type *e) { return g->add_edge(e); }
-    void remove_edge(edge_type *e) { g->remove_edge(e); }
+    void add_vertex(vertex_type *v) {
+        std::lock_guard<std::mutex> l(lock);
+        g->add_vertex(v);
+    }
+    void remove_vertex(vertex_type *v) {
+        std::lock_guard<std::mutex> l(lock);
+        g->remove_vertex(v); 
+    }
+    edge_type *add_edge(edge_type *e) {
+        std::lock_guard<std::mutex> l(lock);
+        return g->add_edge(e);
+    }
+    void remove_edge(edge_type *e) {
+        std::lock_guard<std::mutex> l(lock);
+        g->remove_edge(e);
+    }
+
     std::vector<vertex_type *> &vertex_list(void) { return g->vs; }
 
     void layout(float_type dt)
     {
+        std::lock_guard<std::mutex> l(lock);
         for (auto i = layers.rbegin(); i != layers.rend(); ++i) {
             (*i)->layout(dt);
         }
     }
 
+    std::mutex lock;
     std::vector<layer_type *> layers;
     layer_type *g = nullptr;
 };
