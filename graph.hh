@@ -32,6 +32,7 @@ public:
 
     ~graph(void) {
         // remove all vertices (and edges) in this graph before disposing all layers
+        std::lock_guard<std::mutex> l(lock);
         auto vs = g->vs;
         for (auto v : vs) {
             g->remove_vertex(v);
