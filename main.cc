@@ -33,6 +33,14 @@ struct camera_view_type
     double d_zoom_factor = 0;
     double step = 0.1;
 
+    void on_wayin(void) {
+        zoom_factor -= 500;
+    }
+
+    void on_wayout(void) {
+        zoom_factor += 500;
+    }
+
     void on_forward(void) {
         if (d_zoom_factor > 0) d_zoom_factor = 0;
         else d_zoom_factor -= step;
@@ -114,10 +122,31 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         else if (membrane_mode == 5) membrane_6(g_graph);
     }
     else if (key == 'A' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        binary_tree_add_node();
+        new std::thread([=]() {
+                for  (int k = 0; k < 1000; k++) {
+                    binary_tree_add_node();
+                    usleep(500);
+                }
+            });
+        // binary_tree_add_node(); // usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
+        // binary_tree_add_node(); usleep(1000);
     }
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);
+    }
+    else if (key == 'F' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.on_wayin();
+    }
+    else if (key == 'B' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        camera_view.on_wayout();
     }
     else if (key == 'W' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
         camera_view.on_forward();
@@ -204,6 +233,8 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     // We don't want to modify the projection matrix
     glMatrixMode(GL_MODELVIEW);
 
+    graph->lock.lock();
+
     _float_type x_min, x_max, y_min, y_max, z_min, z_max;
     graph->g->bounding_box(x_min, x_max, y_min, y_max, z_min, z_max);
     _float_type l = std::max(
@@ -220,7 +251,7 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     glRotatef(camera_view.theta, 0, 1, 0);
     glRotatef(camera_view.phi, 1, 0, 0);
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-    
+
     for (auto v : graph->g->vs) {
         glLoadMatrixf(modelview);
         static_cast<vertex_styled<_float_type> *>(v)->render();
@@ -231,6 +262,7 @@ void draw_scene(GLFWwindow* , graph_type *graph)
             }
         }
     }
+    graph->lock.unlock();
 }
 
 
