@@ -6,6 +6,7 @@
 #include "verify.hh"
 #include "render.hh"
 #include <unistd.h>
+#include <thread>
 
 
 // typedef double _float_type;
@@ -111,6 +112,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         else if (membrane_mode == 3) membrane_4(g_graph);
         else if (membrane_mode == 4) membrane_5(g_graph);
         else if (membrane_mode == 5) membrane_6(g_graph);
+    }
+    else if (key == 'A' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
+        binary_tree_add_node();
     }
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);
@@ -269,8 +273,9 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 10);
-    // graph_type *graph = generate_membrane(n_layer, 6, 20);
+    // graph_type *graph = generate_cube(n_layer, 9);
+    // graph_type *graph = generate_membrane(n_layer, 8, 30);
+    graph_type *graph = generate_binary_tree(n_layer);
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);

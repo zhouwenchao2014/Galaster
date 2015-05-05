@@ -53,7 +53,7 @@ graph_type *generate_cube(int n_layers, int m)
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
-        e->color = color_type(100,100,100);                             \
+        e->color = color_type(200,200,100);                             \
         graph->add_edge(e);                                             \
     }
 
@@ -132,70 +132,190 @@ graph_type *generate_membrane(int n_layers, int rows, int lines)
 
 void membrane_1(graph_type *graph)
 {
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int k = 0; k < lines; k++) {
-        for (int kk = 0; kk < rows - 1; kk++) {
-            graph->add_edge(new edge_styled<_float_type>(
-                    graph->g->vs[rows * k + kk],
-                    graph->g->vs[rows * k + kk + 1]));
-        }
-    }
-    membrane_mode = 1;
+    new std::thread([=]() {
+            int rows = membrane_rows, lines = membrane_lines;
+            for (int k = 0; k < lines; k++) {
+                for (int kk = 0; kk < rows - 1; kk++) {
+                    graph->add_edge(new edge_styled<_float_type>(
+                            graph->g->vs[rows * k + kk],
+                            graph->g->vs[rows * k + kk + 1]));
+                    usleep(5000);
+                }
+            }
+            membrane_mode = 1;
+        });
 }
 
 void membrane_2(graph_type *graph)
 {
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < rows; kk++) {
-        graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[kk],
-                graph->g->vs[rows * (lines - 1) + kk]));
-    }
-    membrane_mode = 2;
+    new std::thread([=]() {
+            int rows = membrane_rows, lines = membrane_lines;
+            for (int kk = 0; kk < rows; kk++) {
+                graph->add_edge(new edge_styled<_float_type>(
+                        graph->g->vs[kk],
+                        graph->g->vs[rows * (lines - 1) + kk]));
+                usleep(100000);
+            }
+            membrane_mode = 2;
+        });
 }
 
 void membrane_3(graph_type *graph)
 {
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < lines; kk++) {
-        graph->add_edge(new edge_styled<_float_type>(
-                graph->g->vs[rows * kk],
-                graph->g->vs[rows * kk + rows - 1]));
-    }
-    membrane_mode = 3;
+    new std::thread([=]() {
+            int rows = membrane_rows, lines = membrane_lines;
+            for (int kk = 0; kk < lines; kk++) {
+                graph->add_edge(new edge_styled<_float_type>(
+                        graph->g->vs[rows * kk],
+                        graph->g->vs[rows * kk + rows - 1]));
+                usleep(50000);
+            }
+            membrane_mode = 3;
+        });
 }
 
 void membrane_4(graph_type *graph)
 {
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < lines; kk++) {
-        graph->g->remove_edge(
-            graph->g->vs[rows * kk]->shared_edge(
-                graph->g->vs[rows * kk + rows - 1]));
-    }
-    membrane_mode = 4;
+    new std::thread([=]() {
+            int rows = membrane_rows, lines = membrane_lines;
+            for (int kk = 0; kk < lines; kk++) {
+                graph->g->remove_edge(
+                    graph->g->vs[rows * kk]->shared_edge(
+                        graph->g->vs[rows * kk + rows - 1]));
+                usleep(50000);
+            }
+            membrane_mode = 4;
+        });
 }
 
 void membrane_5(graph_type *graph)
 {
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int kk = 0; kk < rows; kk++) {
-        graph->g->remove_edge(
-            graph->g->vs[kk]->shared_edge(
-                graph->g->vs[rows * (lines - 1) + kk]));
-    }
-    membrane_mode = 5;
+    new std::thread([=]() {
+            int rows = membrane_rows, lines = membrane_lines;
+            for (int kk = 0; kk < rows; kk++) {
+                graph->g->remove_edge(
+                    graph->g->vs[kk]->shared_edge(
+                        graph->g->vs[rows * (lines - 1) + kk]));
+                usleep(100000);
+            }
+            membrane_mode = 5;
+        });
 }
 
 void membrane_6(graph_type *graph)
 {
-    int rows = membrane_rows, lines = membrane_lines;
-    for (int k = 0; k < lines; k++) {
-        for (int kk = 0; kk < rows - 1; kk++) {
-            graph->g->remove_edge(
-                graph->g->vs[rows * k + kk]->shared_edge(
-                    graph->g->vs[rows * k + kk + 1]));
+    new std::thread([=]() {
+            int rows = membrane_rows, lines = membrane_lines;
+            for (int k = 0; k < lines; k++) {
+                for (int kk = 0; kk < rows - 1; kk++) {
+                    graph->g->remove_edge(
+                        graph->g->vs[rows * k + kk]->shared_edge(
+                            graph->g->vs[rows * k + kk + 1]));
+                    usleep(5000);
+                }
+            }
+            membrane_mode = 0;
+        });
+}
+
+
+struct binary_tree {
+    binary_tree(graph_type *graph, int v)
+        : graph(graph), val(v),
+          vertex(nullptr), left(nullptr), right(nullptr),
+          left_edge(nullptr), right_edge(nullptr)
+    {
+        vertex = new vertex_styled<_float_type>(
+            rand_range(-0.5, 0.5),
+            rand_range(-2, -1),
+            rand_range(-0.5, 0.5));
+        vertex->shape = shape_type::sphere;
+        vertex->size = 2;
+        graph->add_vertex(vertex);
+    }
+
+    void add(int k) {
+        if (val < k) {
+            if (!left) {
+                // add a new node here
+                left = new binary_tree(graph, k);
+                left_edge = new edge_styled<_float_type>(vertex, left->vertex);
+                left_edge->oriented = true;
+
+                left_edge->color = color_type::white;
+                usleep(5000);
+                graph->add_edge(left_edge);
+                usleep(5000);
+                left_edge->color = color_type::blue;
+            }
+            else {
+                left_edge->color = color_type::white;
+                usleep(5000);
+                left->add(k);
+                
+                left->vertex->color = color_type::white;
+                usleep(5000);
+                left_edge->color = color_type::blue;
+                left->vertex->color = color_type::blue;
+            }
+        }
+        else {
+            if (!right) {
+                // add a new node here
+                right = new binary_tree(graph, k);
+                right_edge = new edge_styled<_float_type>(vertex, right->vertex);
+                right_edge->oriented = true;
+
+                right_edge->color = color_type::white;
+                usleep(5000);
+                graph->add_edge(right_edge);
+                usleep(5000);
+                right_edge->color = color_type::blue;
+            }
+            else {
+                right_edge->color = color_type::white;
+                usleep(5000);
+                right->add(k);
+
+                right->vertex->color = color_type::white;
+                usleep(5000);
+                right_edge->color = color_type::blue;
+                right->vertex->color = color_type::blue;
+            }
         }
     }
-    membrane_mode = 0;
+
+    graph_type *graph;
+    int val;
+    vertex_styled<_float_type> *vertex;
+    struct binary_tree *left, *right;
+    edge_styled<_float_type> *left_edge, *right_edge;
+
+} *g_binary_tree;
+
+
+void binary_tree_add_node(void)
+{
+    new std::thread([=](){
+            int v = (int) rand_range(0, 2000);
+            g_binary_tree->add(v);
+        });
+}
+
+graph_type *generate_binary_tree(int n_layers)
+{
+    graph_type *graph = new graph_type(n_layers, 
+        30,                     // f0
+        0.02,                   // K
+        0.001,                  // eps
+        0.6,                    // damping
+        0.8);                   // dilation
+
+    g_binary_tree = new binary_tree(graph, 1000);
+    g_binary_tree->vertex->color = color_type::green;
+    g_binary_tree->vertex->shape = shape_type::cube;
+    g_binary_tree->vertex->size = 5;
+    g_binary_tree->vertex->x = vector3d<_float_type>::zero;
+
+    return graph;
 }
