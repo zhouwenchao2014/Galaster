@@ -233,10 +233,8 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     // We don't want to modify the projection matrix
     glMatrixMode(GL_MODELVIEW);
 
-    graph->lock.lock();
-
     _float_type x_min, x_max, y_min, y_max, z_min, z_max;
-    graph->g->bounding_box(x_min, x_max, y_min, y_max, z_min, z_max);
+    graph->bounding_box(x_min, x_max, y_min, y_max, z_min, z_max);
     _float_type l = std::max(
         std::max(x_max - x_min, y_max - y_min), 
         z_max - z_min);
@@ -252,6 +250,7 @@ void draw_scene(GLFWwindow* , graph_type *graph)
     glRotatef(camera_view.phi, 1, 0, 0);
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
 
+    graph->lock.lock();
     for (auto v : graph->g->vs) {
         glLoadMatrixf(modelview);
         static_cast<vertex_styled<_float_type> *>(v)->render();

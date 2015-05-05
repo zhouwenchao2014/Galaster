@@ -72,6 +72,37 @@ public:
         }
     }
 
+    // 
+    // Figure out the size of the bounding box of the graph
+    // 
+    void bounding_box(
+        float_type &x_min, float_type &x_max,
+        float_type &y_min, float_type &y_max,
+        float_type &z_min, float_type &z_max)
+    {
+        std::lock_guard<std::mutex> l(lock);
+        _coord_type xmin = -10, xmax = 10;
+        _coord_type ymin = -10, ymax = 10;
+        _coord_type zmin = -10, zmax = 10;
+
+        for (auto v : g->vs) {
+            _coord_type x, y, z;
+            if (static_cast<vertex_styled<_coord_type> *>(v)->visible) {
+                v->x.coord(x, y, z);
+                xmin = std::min(xmin, x);
+                xmax = std::max(xmax, x);
+                ymin = std::min(ymin, y);
+                ymax = std::max(ymax, y);
+                zmin = std::min(zmin, z);
+                zmax = std::max(zmax, z);
+            }
+        }
+
+        x_min = xmin; x_max = xmax;
+        y_min = ymin; y_max = ymax;
+        z_min = zmin; z_max = zmax;
+    }
+
     std::mutex lock;
     std::vector<layer_type *> layers;
     layer_type *g = nullptr;
