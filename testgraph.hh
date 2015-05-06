@@ -312,10 +312,12 @@ struct binary_tree {
 
 void binary_tree_add_node(void)
 {
-    // new std::thread([=](){
-            int v = (int) rand_range(0, 2000);
-            g_binary_tree->add(v);
+    if (g_binary_tree) {
+        // new std::thread([=](){
+        int v = (int) rand_range(0, 2000);
+        g_binary_tree->add(v);
         // });
+    }
 }
 
 graph_type *generate_binary_tree(int n_layers)
