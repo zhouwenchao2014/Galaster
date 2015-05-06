@@ -122,12 +122,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         else if (membrane_mode == 5) membrane_6(g_graph);
     }
     else if (key == 'A' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        new std::thread([=]() {
-                for  (int k = 0; k < 1000; k++) {
-                    binary_tree_add_node();
-                    usleep(5000);
-                }
-            });
+        static std::mutex uniq_thread;
+        if (uniq_thread.try_lock()) {
+            new std::thread([&]() {
+                    for  (int k = 0; k < 1000; k++) {
+                        binary_tree_add_node();
+                        usleep(5000);
+                    }
+                    uniq_thread.unlock();
+                });
+        }
     }
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);
@@ -294,9 +298,9 @@ int main(int argc, char *argv[])
     // int n_vertex = 300;
     // int n_edges = 3;
     // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    graph_type *graph = generate_cube(n_layer, 8);
+    // graph_type *graph = generate_cube(n_layer, 8);
     // graph_type *graph = generate_membrane(n_layer, 8, 30);
-    // graph_type *graph = generate_binary_tree(n_layer);
+    graph_type *graph = generate_binary_tree(n_layer);
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);
