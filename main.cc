@@ -8,8 +8,13 @@
 #include <unistd.h>
 #include <thread>
 
+enum graph_mode {
+    RANDOM, 
+    CUBE,
+    MEMBRANE,
+    BINARY_TREE,
+};
 
-// typedef double _float_type;
 typedef float _float_type;
 
 typedef graph<_float_type> graph_type;
@@ -272,11 +277,28 @@ void check_for_leaks(void)
 
 int main(int argc, char *argv[])
 {
-    (void) argc;
-    (void) argv;
+    int c;
+    graph_mode mode;
+    graph_type *graph = nullptr;
+
 #ifdef __APPLE__
     atexit(check_for_leaks);
 #endif
+
+    while ((c = getopt(argc, argv, "rcmb")) != -1) { 
+        switch (c) {
+        case 'r':
+            mode = RANDOM;
+            break;
+        case 'b':
+            mode = BINARY_TREE;
+            break;
+        case 'c':
+        default:
+            mode = CUBE;
+            break;
+        }
+    }
 
     if (!glfwInit()) {
         exit(EXIT_FAILURE);
@@ -295,12 +317,17 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
     int n_layer = 6;
-    // int n_vertex = 300;
-    // int n_edges = 3;
-    // graph_type *graph = generate_random_graph(n_layer, n_vertex, n_edges);
-    // graph_type *graph = generate_cube(n_layer, 8);
-    // graph_type *graph = generate_membrane(n_layer, 8, 30);
-    graph_type *graph = generate_binary_tree(n_layer);
+    if (mode == RANDOM) {
+        int n_vertex = 300;
+        int n_edges = 3;
+        graph = generate_random_graph(n_layer, n_vertex, n_edges);
+    } else if (mode == CUBE) {
+        graph = generate_cube(n_layer, 8);
+    } else if (mode == MEMBRANE) {
+        graph = generate_membrane(n_layer, 8, 30);
+    } else if (mode == BINARY_TREE) {
+        graph = generate_binary_tree(n_layer);
+    }
     g_graph = graph;
 
     glfwSetKeyCallback(window, key_callback);
