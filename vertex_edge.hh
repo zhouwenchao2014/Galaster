@@ -34,7 +34,7 @@ public:
     }
     vertex(const vector3d_type &x)
         : id(vertex_id++),
-		  x(x) {
+          x(x) {
     }
     vertex(const vertex &) = delete;
 
