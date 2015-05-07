@@ -20,7 +20,7 @@ public:
         v[2] = z;
     }
     typedef _float_type coord_type;
-	static const vector3d<_float_type> zero;
+    static const vector3d<_float_type> zero;
     coord_type v[3];
 
     vector3d<_float_type>& operator *= (_float_type a) {
@@ -109,7 +109,7 @@ public:
         v = _mm_load_ps(s);
     }
     typedef float coord_type;
-	static const vector3d<float> zero;
+    static const vector3d<float> zero;
     __m128 v;
 
     vector3d<float>& operator *= (float a) {

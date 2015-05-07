@@ -11,10 +11,10 @@ class graph
 {
 public:
     typedef _coord_type float_type;
-	typedef vector3d<_coord_type> vector3d_type;
-	typedef layer<_coord_type> layer_type;
-	typedef vertex<_coord_type> vertex_type;
-	typedef edge<_coord_type> edge_type;
+    typedef vector3d<_coord_type> vector3d_type;
+    typedef layer<_coord_type> layer_type;
+    typedef vertex<_coord_type> vertex_type;
+    typedef edge<_coord_type> edge_type;
 
     graph(int n_layers, 
         double f0, double K, double eps, double damping, double dilation)
