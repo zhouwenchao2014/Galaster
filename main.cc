@@ -287,16 +287,19 @@ int main(int argc, char *argv[])
 
     while ((c = getopt(argc, argv, "rcmb")) != -1) { 
         switch (c) {
-        case 'r':
-            mode = RANDOM;
-            break;
-        case 'b':
-            mode = BINARY_TREE;
-            break;
-        case 'c':
-        default:
-            mode = CUBE;
-            break;
+            case 'r':
+                mode = RANDOM;
+                break;
+            case 'b':
+                mode = BINARY_TREE;
+                break;
+            case 'm':
+                mode = MEMBRANE;
+                break;
+            case 'c':
+            default:
+                mode = CUBE;
+                break;
         }
     }
 
