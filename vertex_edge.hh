@@ -37,6 +37,7 @@ public:
           x(x) {
     }
     vertex(const vertex &) = delete;
+    virtual ~vertex(void) = default;
 
     // find first edge shared by this vertex and b
     edge_type *shared_edge(const vertex_type *b) const;
@@ -110,6 +111,7 @@ public:
         : a(a), b(b), cnt(0), refcounted(refcounted), oriented(oriented) {
     }
     edge(const edge &) = delete;
+    virtual ~edge(void) = default;
 
     // Connect/Disconnect the edge from a to b
     edge<_coord_type> *connect(void);
