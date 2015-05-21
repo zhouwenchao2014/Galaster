@@ -16,7 +16,6 @@ class edge;
 // 
 // Vertex type definitions
 //   vertex: base type for a collection of vertex types
-//   vertex_coarse: vertex in coarsen layer, no style info needed
 //   vertex_styled: vertex in finest layer, with style info for rendering
 // 
 
@@ -63,13 +62,6 @@ public:
 template <typename _coord_type>
 int vertex<_coord_type>::vertex_id;
 
-template <typename _coord_type>
-class vertex_coarse : public vertex<_coord_type> {
-public:
-    vertex_coarse(_coord_type x, _coord_type y, _coord_type z)
-        : vertex<_coord_type>(x, y, z) {
-    }
-};
 
 template <typename _coord_type>
 class vertex_styled : public vertex<_coord_type>
@@ -100,7 +92,6 @@ public:
 // 
 // Edge type definitions
 //   edge: base type for a collection of edge types
-//   edge_coarse: edges in coarsen layer, no style info, reference counted
 //   edge_styled: edges in finest layer, with style info, not reference counted
 // 
 
@@ -111,7 +102,8 @@ public:
     typedef vertex<_coord_type> vertex_type;
     edge(vertex_type *a, vertex_type *b, 
         bool refcounted = true, bool oriented = false)
-        : a(a), b(b), cnt(0), refcounted(refcounted), oriented(oriented) {
+        : a(a), b(b), cnt(0), 
+          refcounted(refcounted), oriented(oriented) {
     }
     edge(const edge &) = delete;
     virtual ~edge(void) = default;
@@ -126,15 +118,6 @@ public:
     int cnt = 0;
     bool refcounted: 1;
     bool oriented: 1;
-};
-
-template <typename _coord_type>
-class edge_coarse : public edge<_coord_type> {
-public:
-    typedef vertex<_coord_type> vertex_type;
-    edge_coarse(vertex_type *a, vertex_type *b)
-        : edge<_coord_type>(a, b, true, false) {
-    }
 };
 
 

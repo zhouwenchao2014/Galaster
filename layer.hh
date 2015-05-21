@@ -128,7 +128,11 @@ public:
     // Apply numerical methods on the Lagrange Dynamics formed by the spring system
     // defined by this graph.
     // 
-    void layout(float_type dt);
+    virtual void layout(float_type dt);
+    vector3d_type repulsion_force(vertex_type *v, const std::vector<vertex_type *> &vs);
+    vector3d_type spring_force(vertex_type *v1, vertex_type *v2, edge_type *e);
+    void update_velocity(vertex_type *v, float_type dt);
+    void apply_displacement(vertex_type *v, float_type dt);
 
 protected:
 
@@ -248,6 +252,24 @@ protected:
     float_type damping;         // damping factor for dissipating energy
     float_type dilation;        // dilation factor used when transfering the dynamics
                                 // of coarser graph to the finer graph
+};
+
+
+template <typename _coord_type>
+class finest_layer : public layer<_coord_type>
+{
+public:
+    typedef _coord_type float_type;
+    typedef vector3d<_coord_type> vector3d_type;
+    typedef layer<_coord_type> layer_type;
+    typedef vertex<_coord_type> vertex_type;
+    typedef edge<_coord_type> edge_type;
+
+    finest_layer(double f0, double K, double eps, double damping, double dilation)
+        : layer<_coord_type>(f0, K, eps, damping, dilation) {
+    }
+
+    virtual void layout(float_type dt);    
 };
 
 

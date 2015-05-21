@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
         int n_edges = 3;
         graph = generate_random_graph(n_layer, n_vertex, n_edges);
     } else if (mode == CUBE) {
-        graph = generate_cube(n_layer, 5);
+        graph = generate_cube(n_layer, 7);
     } else if (mode == MEMBRANE) {
         graph = generate_membrane(n_layer, 8, 30);
     } else if (mode == BINARY_TREE) {
