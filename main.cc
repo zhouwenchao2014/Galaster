@@ -12,6 +12,7 @@ enum graph_mode {
     RANDOM, 
     CUBE,
     MEMBRANE,
+    SPLINEEDGE,
     BINARY_TREE,
 };
 
@@ -24,6 +25,9 @@ typedef vertex<_float_type> vertex_type;
 
 
 graph_type *g_graph;
+
+
+#include "testgraph.hh"
 
 
 struct camera_view_type
@@ -86,14 +90,6 @@ struct camera_view_type
     
 } camera_view;
 
-
-double rand_range(double from, double to)
-{
-    double n = to - from + 1;
-    return rand() * n / RAND_MAX + from;
-}
-
-#include "testgraph.hh"
 
 
 void error_callback(int error, const char *description)
@@ -254,9 +250,30 @@ void draw_scene(GLFWwindow* , graph_type *graph)
         glLoadMatrixf(modelview);
         static_cast<vertex_styled<_float_type> *>(v)->render();
         for (auto e : v->es) {
-            if (e->a != e->b and e->a == v) {
+            if (e->a == v) {
                 glLoadMatrixf(modelview);
                 static_cast<edge_styled<_float_type> *>(e)->render();
+
+                // BADHACK FOR spline edges
+                auto e_styled = static_cast<edge_styled<_float_type> *>(e);
+                if (e_styled->spline) {
+                    vertex_styled<_float_type> tmp_v(e_styled->vspline->x);
+                    edge_styled<_float_type> e0(&tmp_v, e->a);
+                    edge_styled<_float_type> e1(&tmp_v, e->b);
+                    tmp_v.shape = shape_type::octahedron;
+                    tmp_v.size = 2;
+                    tmp_v.color = color_type::red;
+                    e0.stroke = stroke_type::dotted;
+                    e0.color = color_type::red;
+                    e1.stroke = stroke_type::dotted;
+                    e1.color = color_type::red;
+                    glLoadMatrixf(modelview);
+                    tmp_v.render();
+                    glLoadMatrixf(modelview);
+                    e0.render();
+                    glLoadMatrixf(modelview);
+                    e1.render();
+                }
             }
         }
     }
@@ -285,7 +302,7 @@ int main(int argc, char *argv[])
     atexit(check_for_leaks);
 #endif
 
-    while ((c = getopt(argc, argv, "rcmb")) != -1) { 
+    while ((c = getopt(argc, argv, "rcmsb")) != -1) { 
         switch (c) {
             case 'r':
                 mode = RANDOM;
@@ -295,6 +312,9 @@ int main(int argc, char *argv[])
                 break;
             case 'm':
                 mode = MEMBRANE;
+                break;
+            case 's':
+                mode = SPLINEEDGE;
                 break;
             case 'c':
             default:
@@ -325,11 +345,15 @@ int main(int argc, char *argv[])
         int n_edges = 3;
         graph = generate_random_graph(n_layer, n_vertex, n_edges);
     } else if (mode == CUBE) {
-        graph = generate_cube(n_layer, 8);
+        graph = generate_cube(n_layer, 5);
     } else if (mode == MEMBRANE) {
         graph = generate_membrane(n_layer, 8, 30);
     } else if (mode == BINARY_TREE) {
         graph = generate_binary_tree(n_layer);
+    } else if (mode == SPLINEEDGE) {
+        int n_vertex = 1;
+        int n_edges = 5;
+        graph = generate_splineedge_graph(n_layer, n_vertex, n_edges);
     }
     g_graph = graph;
 

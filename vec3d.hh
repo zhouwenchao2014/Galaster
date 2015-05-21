@@ -10,6 +10,12 @@
 #include <algorithm>
 
 
+inline double rand_range(double from, double to) {
+    double n = to - from;
+    return rand() * n / RAND_MAX + from;
+}
+
+
 // Baseline implementation for all real types
 template <typename _float_type>
 class vector3d {

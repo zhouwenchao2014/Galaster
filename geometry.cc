@@ -13,10 +13,6 @@ using namespace std;
 
 
 /* Version for OpenGL (ES) 1.1 */
-// static void fghDrawGeometryWire(GLfloat *vertices, GLfloat *normals,
-                                  // GLushort *vertIdxs, GLsizei numParts, GLsizei numVertPerPart, GLenum vertexMode,
-                                  // GLushort *vertIdxs2, GLsizei numParts2, GLsizei numVertPerPart2
-    // )
 void fghDrawGeometryWire(
     GLfloat *vertices, GLfloat *normals, GLsizei numVertices,
     GLushort *vertIdxs, GLsizei numParts, GLsizei numVertPerPart, GLenum vertexMode,
