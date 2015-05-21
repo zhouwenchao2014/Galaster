@@ -112,6 +112,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             for (vertex_type *cv = v->coarser; cv != nullptr; cv = cv->coarser) {
                 cv->x = v->x;
             }
+            for (auto e : v->es) {
+                auto e_styled = dynamic_cast<edge_styled<_float_type> *>(e);
+                if (e_styled and e_styled->spline) {
+                    e_styled->vspline->x = vector3d<_float_type>(
+                        rand_range(-r, r),
+                        rand_range(-r, r),
+                        rand_range(-r, r));
+                }
+            }
         }
     }
     else if (key == 'N' and action == GLFW_RELEASE) {

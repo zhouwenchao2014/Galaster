@@ -192,14 +192,7 @@ public:
     class vertex_spline_centroid : public vertex<_coord_type> {
     public:
         vertex_spline_centroid(edge_styled<_coord_type> *e) 
-            : vertex<_coord_type>(
-                _coord_type(0.5) * (e->a->x + e->b->x)
-                //  + 
-                // vector3d<_coord_type>(
-                //     rand_range(-1, 1),
-                //     rand_range(-1, 1),
-                //     rand_range(-1, 1))
-                ),
+            : vertex<_coord_type>(_coord_type(0.5) * (e->a->x + e->b->x)),
               e_spline(e) {
             this->es.push_back(new edge<_coord_type>(this, e->a, false, false));
             if (e->a != e->b)
