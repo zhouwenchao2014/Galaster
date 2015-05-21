@@ -78,6 +78,9 @@ public:
     vertex_styled(_coord_type x, _coord_type y, _coord_type z)
         : vertex<_coord_type>(x, y, z) {
     }
+    vertex_styled(const vector3d<_coord_type> &x)
+        : vertex<_coord_type>(x) {
+    }
 
     // render this vertex via OpenGL
     void render(void) const;
@@ -117,8 +120,8 @@ public:
     edge<_coord_type> *connect(void);
     void disconnect(void);
         
-    vertex<_coord_type> *a;
-    vertex<_coord_type> *b;
+    vertex<_coord_type> * const a;
+    vertex<_coord_type> * const b;
     _coord_type strength = 1.0;
     int cnt = 0;
     bool refcounted: 1;
@@ -134,6 +137,7 @@ public:
     }
 };
 
+
 template <typename _coord_type>
 class edge_styled : public edge<_coord_type>
 {
@@ -146,8 +150,23 @@ public:
           spline(false), showstrain(false) {
     }
 
+    virtual ~edge_styled(void) {
+        delete vspline;
+    }
+
     // render this edge via OpenGL
     void render(void) const;
+
+    // set this edge as a spline edge
+    void set_spline(bool is_spline = true) {
+        spline = is_spline;
+        if (is_spline and vspline == nullptr) {
+            vspline = new vertex_spline_centroid(this);
+        }
+        else {
+            delete vspline;
+        }
+    }
 
     bool visible: 1;
     bool arrow: 1;
@@ -164,6 +183,34 @@ public:
     int font_size = 12;
     stroke_type stroke = stroke_type::solid;
     double width = 1.0;
+
+    // 
+    // centroid position of spline edge. this centroid is represented as a
+    // specialized vertex and involves the calculation of force-directed layout in
+    // the finest layer
+    // 
+    class vertex_spline_centroid : public vertex<_coord_type> {
+    public:
+        vertex_spline_centroid(edge_styled<_coord_type> *e) 
+            : vertex<_coord_type>(
+                _coord_type(0.5) * (e->a->x + e->b->x)
+                //  + 
+                // vector3d<_coord_type>(
+                //     rand_range(-1, 1),
+                //     rand_range(-1, 1),
+                //     rand_range(-1, 1))
+                ),
+              e_spline(e) {
+            this->es.push_back(new edge<_coord_type>(this, e->a, false, false));
+            if (e->a != e->b)
+                this->es.push_back(
+                    new edge<_coord_type>(this, e->b, false, false));
+        }
+        virtual ~vertex_spline_centroid(void) {
+            for (auto e : this->es) delete e;
+        }
+        edge_styled<_coord_type> *e_spline;
+    } *vspline = nullptr;
 };
 
 

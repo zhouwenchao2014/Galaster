@@ -75,12 +75,14 @@ template <typename _coord_type>
 void edge_styled<_coord_type>::render(void) const
 {
     if (!visible) return;
+    if (!spline and this->a == this->b) return;
+
     _coord_type x0, y0, z0;
     _coord_type x1, y1, z1;
     this->a->x.coord(x0, y0, z0);
     this->b->x.coord(x1, y1, z1);
 
-    // TODO: handle arrow and stroke
+    // TODO: handle arrow and spline
     switch (stroke) {
         case stroke_type::solid:  glLineStipple(1, 0xFFFF); break;
         case stroke_type::dotted: glLineStipple(2, 0xAAAA); break;

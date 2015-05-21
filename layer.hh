@@ -39,6 +39,7 @@ public:
         : f0(f0), K(K), eps(eps), damping(damping), dilation(dilation) {
     }
     layer(const layer &) = delete;
+    virtual ~layer(void) = default;
 
     // 
     // add vertex v to this layer, and create corresponding coarsed version of v in

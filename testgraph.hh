@@ -29,6 +29,38 @@ graph_type *generate_random_graph(int n_layers, int n_vertex, int n_edge)
     return graph;
 }
 
+
+graph_type *generate_splineedge_graph(int n_layers, int n_vertex, int n_edge)
+{
+    graph_type *graph = new graph_type(n_layers, 
+        250,                    // f0
+        0.02,                   // K
+        0.001,                  // eps
+        0.6,                    // damping
+        1.2);                   // dilation
+
+    _float_type r = 5;
+    for (int k = 0; k < n_vertex; k++) {
+        graph->add_vertex(new vertex_styled<_float_type>(
+                rand_range(-r, r),
+                rand_range(-r, r),
+                rand_range(-r, r)));
+    }
+
+    for (int k = 0; k < n_vertex; k++) {
+        for (int n = 0; n < n_edge; n++) {
+            int x2 = rand_range(0, n_vertex - 1);
+            auto e = new edge_styled<_float_type>(
+                graph->g->vs[k], graph->g->vs[x2]);
+            e->set_spline();
+            graph->add_edge(e);
+        }
+    }
+
+    return graph;
+}
+
+
 graph_type *generate_cube(int n_layers, int m)
 {
     graph_type *graph = new graph_type(n_layers, 
@@ -51,11 +83,25 @@ graph_type *generate_cube(int n_layers, int m)
     }
 
 #define idx(i,j,k) (i)*m*m + (j)*m + (k)
+
+
+// #define addedge(a, b) {                                                 \
+//         auto v = new vertex_styled<_float_type>(0.5 * (graph->g->vs[a]->x + graph->g->vs[b]->x)); \
+//         graph->add_vertex(v);                                           \
+//         auto e0 = new edge_styled<_float_type>(v, graph->g->vs[a]);     \
+//         auto e1 = new edge_styled<_float_type>(v, graph->g->vs[b]);     \
+//         graph->add_edge(e0);                                            \
+//         graph->add_edge(e1);                                            \
+//     }
+
+
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
+        e->set_spline();                                                \
         e->color = color_type(200,200,100);                             \
         graph->add_edge(e);                                             \
     }
+
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
