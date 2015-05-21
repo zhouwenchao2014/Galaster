@@ -20,7 +20,9 @@ public:
         double f0, double K, double eps, double damping, double dilation)
     {
         layers.reserve(n_layers);
-        for (int k = 0; k < n_layers; k++)
+        layers.push_back(new finest_layer<_coord_type>(
+                f0, K, eps, damping, dilation));
+        for (int k = 1; k < n_layers; k++)
             layers.push_back(new layer_type(f0, K, eps, damping, dilation));
 
         for (int k = 1; k < n_layers; k++)
