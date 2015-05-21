@@ -17,8 +17,8 @@ bool contains(const _container_ty &c, const _elem_ty &e) {
 
 
 // 
-// A layer of graph. Both finest layers and coarsen layers are of this type.  Each
-// layer has a `coarser` member for accessing the coarser version of the same graph.
+// A layer of graph. Each layer has a `coarser` member for accessing the coarser
+// version of the same graph.
 // 
 // Lagrange dynamics are calculated from the coarsest layer all the way down to the
 // finest layer, with some multilevel dynamics mechanism for transfering the layout
@@ -255,6 +255,10 @@ protected:
 };
 
 
+// 
+// Finest layer of the graph, which contains only styled vertices. We applies special
+// treatments for spline edges by layouting their centroid vertices in this layer
+// 
 template <typename _coord_type>
 class finest_layer : public layer<_coord_type>
 {
