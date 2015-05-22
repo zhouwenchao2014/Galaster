@@ -1,6 +1,6 @@
 UNAME := $(shell uname)
 .PHONY: run test clean
-run: main.cc geometry.cc
+run: main.cc geometry.cc bezier.cc
 ifeq ($(UNAME), Darwin)
 	g++ -o $@ $^ -std=c++11 -I ./glfw -L ./glfw -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo  -Wall -Wextra -Wno-deprecated-declarations -pedantic -g -O3 -march=native
 endif
