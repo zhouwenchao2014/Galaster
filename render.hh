@@ -116,14 +116,14 @@ void edge_styled<_coord_type>::render(void) const
             {x2, y2, z2}
         };
 
-        // glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
-        // glMapGrid1f(10, 0.0, 1.0);
-        // glEvalMesh1(GL_LINE, 0, 10);
+        glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
+        glMapGrid1f(10, 0.0, 1.0);
+        glEvalMesh1(GL_LINE, 0, 10);
 
-        ownglEvalMesh1f(
-            GL_LINE, 0, 10,
-            10, 0.0, 1.0,
-            GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
+        // ownglEvalMesh1f(
+        //     GL_LINE, 0, 10,
+        //     10, 0.0, 1.0,
+        //     GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
     }
 }
 
