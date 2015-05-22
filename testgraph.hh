@@ -30,6 +30,42 @@ graph_type *generate_random_graph(int n_layers, int n_vertex, int n_edge)
 }
 
 
+graph_type *generate_multiedge_graph(int n_layers, int n_edge)
+{
+    graph_type *graph = new graph_type(n_layers, 
+        250,                    // f0
+        0.02,                   // K
+        0.001,                  // eps
+        0.6,                    // damping
+        1.2);                   // dilation
+
+    _float_type r = 5;
+    auto v0 = new vertex_styled<_float_type>(
+        rand_range(-r, r),
+        rand_range(-r, r),
+        rand_range(-r, r));
+    v0->shape = shape_type::sphere;
+    v0->color = color_type::red;
+    graph->add_vertex(v0);
+
+    auto v1 = new vertex_styled<_float_type>(
+        rand_range(-r, r),
+        rand_range(-r, r),
+        rand_range(-r, r));
+    v1->shape = shape_type::sphere;
+    v1->color = color_type::red;
+    graph->add_vertex(v1);
+
+    for (int n = 0; n < n_edge; n++) {
+        auto e = new edge_styled<_float_type>(v0, v1);
+        e->set_spline();
+        graph->add_edge(e);
+    }
+
+    return graph;
+}
+
+
 graph_type *generate_splineedge_graph(int n_layers, int n_vertex, int n_edge)
 {
     graph_type *graph = new graph_type(n_layers, 
@@ -41,10 +77,14 @@ graph_type *generate_splineedge_graph(int n_layers, int n_vertex, int n_edge)
 
     _float_type r = 5;
     for (int k = 0; k < n_vertex; k++) {
-        graph->add_vertex(new vertex_styled<_float_type>(
-                rand_range(-r, r),
-                rand_range(-r, r),
-                rand_range(-r, r)));
+        auto v = new vertex_styled<_float_type>(
+            rand_range(-r, r),
+            rand_range(-r, r),
+            rand_range(-r, r));
+        v->shape = shape_type::sphere;
+        v->color = color_type::red;
+        v->size = 3;
+        graph->add_vertex(v);
     }
 
     for (int k = 0; k < n_vertex; k++) {
