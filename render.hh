@@ -6,6 +6,12 @@
 #include <GLFW/glfw3.h>
 #include "vertex_edge.hh"
 
+void ownglEvalMesh1f (
+    /* glEvalMesh1() */ GLenum mode, GLint i1, GLint i2,
+    /* glMapGrid1f() */ GLint nu, GLfloat u1_, GLfloat u2_,
+    /* glMap1f */ GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint
+    uorder, GLfloat *points);
+
 
 void glutSolidSphere(double radius, GLint slices, GLint stacks);
 void glutSolidCube(double size);
@@ -109,10 +115,15 @@ void edge_styled<_coord_type>::render(void) const
             {x1, y1, z1},
             {x2, y2, z2}
         };
-        glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
-        glEnable(GL_MAP1_VERTEX_3);
-        glMapGrid1f(10, 0.0, 1.0);
-        glEvalMesh1(GL_LINE, 0, 10);
+
+        // glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
+        // glMapGrid1f(10, 0.0, 1.0);
+        // glEvalMesh1(GL_LINE, 0, 10);
+
+        ownglEvalMesh1f(
+            GL_LINE, 0, 10,
+            10, 0.0, 1.0,
+            GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
     }
 }
 

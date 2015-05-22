@@ -223,6 +223,7 @@ void init_opengl(void)
     glEnable(GL_COLOR);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_AUTO_NORMAL);
+    glEnable(GL_MAP1_VERTEX_3);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_LINE_STIPPLE);
     glEnable(GL_DEPTH_TEST);
@@ -327,7 +328,7 @@ int main(int argc, char *argv[])
     glfwSwapInterval(1);
 
     srand(time(NULL));
-    int n_layer = 6;
+    int n_layer = 1;
     if (mode == RANDOM) {
         int n_vertex = 300;
         int n_edges = 3;
@@ -339,9 +340,10 @@ int main(int argc, char *argv[])
     } else if (mode == BINARY_TREE) {
         graph = generate_binary_tree(n_layer);
     } else if (mode == SPLINEEDGE) {
-        int n_vertex = 3;
-        int n_edges = 5;
+        int n_vertex = 50;
+        int n_edges = 2;
         graph = generate_splineedge_graph(n_layer, n_vertex, n_edges);
+        // graph = generate_multiedge_graph(n_layer, n_edges);
     }
     g_graph = graph;
 
