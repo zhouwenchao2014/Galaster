@@ -262,27 +262,6 @@ void draw_scene(GLFWwindow* , graph_type *graph)
             if (e->a == v) {
                 glLoadMatrixf(modelview);
                 static_cast<edge_styled<_float_type> *>(e)->render();
-
-                // BADHACK FOR spline edges
-                auto e_styled = static_cast<edge_styled<_float_type> *>(e);
-                if (e_styled->spline) {
-                    vertex_styled<_float_type> tmp_v(e_styled->vspline->x);
-                    edge_styled<_float_type> e0(&tmp_v, e->a);
-                    edge_styled<_float_type> e1(&tmp_v, e->b);
-                    tmp_v.shape = shape_type::octahedron;
-                    tmp_v.size = 2;
-                    tmp_v.color = color_type::red;
-                    e0.stroke = stroke_type::dotted;
-                    e0.color = color_type::red;
-                    e1.stroke = stroke_type::dotted;
-                    e1.color = color_type::red;
-                    glLoadMatrixf(modelview);
-                    tmp_v.render();
-                    glLoadMatrixf(modelview);
-                    e0.render();
-                    glLoadMatrixf(modelview);
-                    e1.render();
-                }
             }
         }
     }
@@ -360,7 +339,7 @@ int main(int argc, char *argv[])
     } else if (mode == BINARY_TREE) {
         graph = generate_binary_tree(n_layer);
     } else if (mode == SPLINEEDGE) {
-        int n_vertex = 1;
+        int n_vertex = 3;
         int n_edges = 5;
         graph = generate_splineedge_graph(n_layer, n_vertex, n_edges);
     }
