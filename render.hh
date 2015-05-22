@@ -82,7 +82,6 @@ void edge_styled<_coord_type>::render(void) const
     this->a->x.coord(x0, y0, z0);
     this->b->x.coord(x1, y1, z1);
 
-    // TODO: handle arrow and spline
     switch (stroke) {
         case stroke_type::solid:  glLineStipple(1, 0xFFFF); break;
         case stroke_type::dotted: glLineStipple(2, 0xAAAA); break;
@@ -93,10 +92,28 @@ void edge_styled<_coord_type>::render(void) const
     }
     glLineWidth(width);
     glColor3d(color.redd(), color.greend(), color.blued());
-    glBegin(GL_LINES);
-    glVertex3f(x0, y0, z0);
-    glVertex3f(x1, y1, z1);
-    glEnd();
+
+    if (!spline) {
+        glBegin(GL_LINES);
+        glVertex3f(x0, y0, z0);
+        glVertex3f(x1, y1, z1);
+        glEnd();
+    }
+    else {
+        _coord_type x0,y0,z0, x1,y1,z1, x2,y2,z2;
+        this->a->x.coord(x0, y0, z0);
+        vspline->x.coord(x1, y1, z1);
+        this->b->x.coord(x2, y2, z2);
+        GLfloat ctrl_pts[3][3] = {
+            {x0, y0, z0},
+            {x1, y1, z1},
+            {x2, y2, z2}
+        };
+        glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
+        glEnable(GL_MAP1_VERTEX_3);
+        glMapGrid1f(10, 0.0, 1.0);
+        glEvalMesh1(GL_LINE, 0, 10);
+    }
 }
 
 
