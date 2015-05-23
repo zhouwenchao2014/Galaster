@@ -1,4 +1,4 @@
-CXXFLAGS += -std=c++11 -I ../ -I ../glfw -L ../ -lgalaster -O3 -march=native
+CXXFLAGS += -std=c++11 -I ../src -I ../glfw -L ../ -lgalaster -O3 -march=native
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
