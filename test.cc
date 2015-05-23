@@ -1,5 +1,4 @@
-#include "graph.hh"
-#include "layout.hh"
+#include "galaster.hh"
 #include "verify.hh"
 #include <iostream>
 #include <unistd.h>
