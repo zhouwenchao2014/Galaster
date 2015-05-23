@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
     } else if (mode == BINARY_TREE) {
         graph = generate_binary_tree(n_layer);
     } else if (mode == SPLINEEDGE) {
-        int n_vertex = 30/* 50 */;
+        int n_vertex = 50;
         int n_edges = 2;
         graph = generate_splineedge_graph(n_layer, n_vertex, n_edges);
         // graph = generate_multiedge_graph(n_layer, n_edges);
