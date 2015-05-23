@@ -105,9 +105,8 @@ void edge_styled<_coord_type>::render(void) const
     glLineWidth(width);
     glColor3d(color.redd(), color.greend(), color.blued());
 
-    double arrow_position = 0.5; // for testing, to be fixed
     vector3d_type arrow_dir(vector3d_type::zero);
-    _coord_type ax, ay, az;
+    _coord_type ax = 0, ay = 0, az = 0;
 
     if (!spline) {
         glBegin(GL_LINES);
@@ -116,10 +115,11 @@ void edge_styled<_coord_type>::render(void) const
         glEnd();
 
         // calculate arrow position and direction
-        // if (arrow) {
-        vector3d_type dvertex = this->b->x - this->a->x;
-        arrow_dir = dvertex.normalized();
-        (this->a->x + dvertex * arrow_position).coord(ax, ay, az);
+        if (arrow) {
+            vector3d_type dvertex = this->b->x - this->a->x;
+            arrow_dir = dvertex.normalized();
+            (this->a->x + dvertex * arrow_position).coord(ax, ay, az);
+        }
     }
     else {
         _coord_type x0,y0,z0, x1,y1,z1, x2,y2,z2;
@@ -138,11 +138,12 @@ void edge_styled<_coord_type>::render(void) const
             glEvalMesh1(GL_LINE, 0, 10);
 
             // calculate arrow position and direction
-            // if (arrow) {
-            GLfloat x1, y1, z1;
-            ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position, ax, ay, az);
-            ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
-            arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
+            if (arrow) {
+                GLfloat x1, y1, z1;
+                ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position, ax, ay, az);
+                ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
+                arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
+            }
         }
         else {
             _coord_type x0,y0,z0, x1,y1,z1, dx, dy, dz;
@@ -166,15 +167,15 @@ void edge_styled<_coord_type>::render(void) const
                 /* glMap1f */ GL_MAP1_VERTEX_4, 0.0, 1.0, 3, 4, &ctrl_pts[0][0]);
 
             // calculate arrow position and direction
-            // if (arrow) {
-            ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position, ax, ay, az);
-            ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
-            arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
+            if (arrow) {
+                ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position, ax, ay, az);
+                ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
+                arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
+            }
         }
     }
 
-    // if (arrow) {
-    if (1) {
+    if (arrow) {
         glTranslatef(ax, ay, az);
         auto zvec_dir = vector3d_type(0,0,1);
         _coord_type rot_angle = acos(arrow_dir.dot(zvec_dir));
@@ -184,7 +185,9 @@ void edge_styled<_coord_type>::render(void) const
             rot_axis.coord(rx, ry, rz);
             glRotatef(-rot_angle * 180 / M_PI, rx, ry, rz);
         }
-        glutSolidCone(2, 4, 20, 20);
+
+        if (arrow_reverse) glRotatef(180, 0, 1, 0);
+        glutSolidCone(arrow_radius, arrow_length, 20, 20);
     }
 }
 

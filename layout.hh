@@ -71,8 +71,6 @@ void layer<_coord_type>::apply_displacement(vertex_type *v, float_type dt)
 
 
 
-
-
 template <typename _coord_type>
 void layer<_coord_type>::layout(float_type dt)
 {
