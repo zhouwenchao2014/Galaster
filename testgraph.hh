@@ -82,8 +82,8 @@ graph_type *generate_splineedge_graph(int n_layers, int n_vertex, int n_edge)
             rand_range(-r, r),
             rand_range(-r, r));
         v->shape = shape_type::sphere;
-        v->color = color_type::red;
-        v->size = 3;
+        v->color = color_type(rand_range(0,1), rand_range(0,1), rand_range(0,1)); // color_type::red;
+        v->size = 5;
         graph->add_vertex(v);
     }
 
@@ -93,6 +93,11 @@ graph_type *generate_splineedge_graph(int n_layers, int n_vertex, int n_edge)
             auto e = new edge_styled<_float_type>(
                 graph->g->vs[k], graph->g->vs[x2]);
             e->set_spline();
+            e->arrow = true;
+            e->arrow_position = rand_range(0, 1);
+            e->arrow_radius = 3;
+            e->arrow_length = 6;
+            e->arrow_reverse = (rand_range(0, 1) < 0.5);
             graph->add_edge(e);
         }
     }
