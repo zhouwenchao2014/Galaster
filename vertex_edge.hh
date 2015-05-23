@@ -191,6 +191,11 @@ public:
         }
         edge_styled<_coord_type> *e_spline;
     } *vspline = nullptr;
+
+protected:
+    void render_arrow(
+        const vector3d_type &arrow_dir, 
+        GLfloat ax, GLfloat ay, GLfloat az) const;
 };
 
 

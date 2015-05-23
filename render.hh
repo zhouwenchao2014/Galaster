@@ -160,11 +160,10 @@ void edge_styled<_coord_type>::render(void) const
                 {(GLfloat) (x0 + dx), (GLfloat) (y0 + k), (GLfloat) (z0 + dz)},
                 {(GLfloat) x0, (GLfloat) y0, (GLfloat) z0},
             };
-
             ownglEvalMesh1f (
-                /* glEvalMesh1() */ GL_LINE, 0, 50,
-                /* glMapGrid1f() */ 50, 0.0, 1.0,
-                /* glMap1f */ GL_MAP1_VERTEX_4, 0.0, 1.0, 3, 4, &ctrl_pts[0][0]);
+                GL_LINE, 0, 50,
+                50, 0.0, 1.0,
+                GL_MAP1_VERTEX_4, 0.0, 1.0, 3, 4, &ctrl_pts[0][0]);
 
             // calculate arrow position and direction
             if (arrow) {
@@ -175,9 +174,17 @@ void edge_styled<_coord_type>::render(void) const
         }
     }
 
+    render_arrow(arrow_dir, ax, ay, az);
+}
+
+
+template <typename _coord_type>
+void edge_styled<_coord_type>::render_arrow(
+    const vector3d_type &arrow_dir, GLfloat ax, GLfloat ay, GLfloat az) const
+{
     if (arrow) {
         glTranslatef(ax, ay, az);
-        auto zvec_dir = vector3d_type(0,0,1);
+        auto zvec_dir = vector3d_type(0, 0, 1);
         _coord_type rot_angle = acos(arrow_dir.dot(zvec_dir));
         if (fabs(rot_angle) > 1e-6) {
             _coord_type rx, ry, rz;

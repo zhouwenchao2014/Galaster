@@ -132,13 +132,14 @@ graph_type *generate_cube(int n_layers, int m)
 
 // #define addedge(a, b) {                                                 \
 //         auto v = new vertex_styled<_float_type>(0.5 * (graph->g->vs[a]->x + graph->g->vs[b]->x)); \
+//         v->shape = shape_type::sphere;                                  \
+//         v->color = color_type::red;                                     \
 //         graph->add_vertex(v);                                           \
 //         auto e0 = new edge_styled<_float_type>(v, graph->g->vs[a]);     \
 //         auto e1 = new edge_styled<_float_type>(v, graph->g->vs[b]);     \
 //         graph->add_edge(e0);                                            \
 //         graph->add_edge(e1);                                            \
 //     }
-
 
 #define addedge(a, b) {                                                 \
         auto e = new edge_styled<_float_type>(graph->g->vs[a], graph->g->vs[b]); \
