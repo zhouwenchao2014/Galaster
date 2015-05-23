@@ -1,6 +1,8 @@
 UNAME := $(shell uname)
 .PHONY: run test clean
 
+vpath %.hh src
+vpath %.cc src
 
 ifeq ($(UNAME), Darwin)
 libgalaster.so: galaster.cc geometry.cc bezier.cc vec3d.cc prop.cc
