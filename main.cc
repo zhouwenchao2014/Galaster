@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <thread>
 
+
 enum graph_mode {
     RANDOM, 
     CUBE,
@@ -17,7 +18,6 @@ enum graph_mode {
 };
 
 typedef float _float_type;
-
 typedef graph<_float_type> graph_type;
 typedef layer<_float_type> layer_type;
 typedef edge<_float_type> edge_type;
@@ -284,7 +284,7 @@ void check_for_leaks(void)
 int main(int argc, char *argv[])
 {
     int c;
-    graph_mode mode;
+    graph_mode mode = CUBE;
     graph_type *graph = nullptr;
 
 #ifdef __APPLE__
