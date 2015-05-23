@@ -29,6 +29,32 @@ void glutSolidIcosahedron(void);
 void glutSolidRhombicDodecahedron(void);
 
 
+
+// 
+// Render graph using OpenGL by rendering each individual vertices and edges. Note
+// that the modelview matrix will not be affected after calling this function
+// 
+template <typename _coord_type>
+void graph<_coord_type>::render(void)
+{
+    GLfloat modelview[4 * 4];
+    glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+    lock.lock();
+    for (auto v : g->vs) {
+        glLoadMatrixf(modelview);
+        static_cast<vertex_styled<_coord_type> *>(v)->render();
+        for (auto e : v->es) {
+            if (e->a == v) {
+                glLoadMatrixf(modelview);
+                static_cast<edge_styled<_coord_type> *>(e)->render();
+            }
+        }
+    }
+    lock.unlock();
+    glLoadMatrixf(modelview);
+}
+
+
 // Render this vertex using OpenGL
 template <typename _coord_type>
 void vertex_styled<_coord_type>::render(void) const
@@ -118,7 +144,7 @@ void edge_styled<_coord_type>::render(void) const
         if (arrow) {
             vector3d_type dvertex = this->b->x - this->a->x;
             arrow_dir = dvertex.normalized();
-            (this->a->x + dvertex * arrow_position).coord(ax, ay, az);
+            (this->a->x + dvertex * (_coord_type) arrow_position).coord(ax, ay, az);
         }
     }
     else {
@@ -139,9 +165,11 @@ void edge_styled<_coord_type>::render(void) const
 
             // calculate arrow position and direction
             if (arrow) {
+                GLfloat axf, ayf, azf;
                 GLfloat x1, y1, z1;
-                ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position, ax, ay, az);
+                ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position, axf, ayf, azf);
                 ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
+                ax = (_coord_type) axf, ay = (_coord_type) ayf, az = (_coord_type) azf;
                 arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
             }
         }
@@ -167,8 +195,11 @@ void edge_styled<_coord_type>::render(void) const
 
             // calculate arrow position and direction
             if (arrow) {
-                ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position, ax, ay, az);
+                GLfloat axf, ayf, azf;
+                GLfloat x1, y1, z1;
+                ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position, axf, ayf, azf);
                 ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
+                ax = (_coord_type) axf, ay = (_coord_type) ayf, az = (_coord_type) azf;
                 arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
             }
         }

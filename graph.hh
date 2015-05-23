@@ -6,8 +6,20 @@
 #include <mutex>
 
 
+class graph_base {
+public:
+    virtual ~graph_base() {}
+    virtual void layout(double dt) = 0;
+    virtual void render(void) = 0;
+    virtual void randomize(void) = 0;
+    virtual void bounding_box_gl(
+        GLfloat &x_min, GLfloat &x_max,
+        GLfloat &y_min, GLfloat &y_max,
+        GLfloat &z_min, GLfloat &z_max) = 0;
+};
+
 template <typename _coord_type>
-class graph
+class graph : public graph_base
 {
 public:
     typedef _coord_type float_type;
@@ -66,11 +78,40 @@ public:
 
     std::vector<vertex_type *> &vertex_list(void) { return g->vs; }
 
-    void layout(float_type dt)
+    virtual void layout(double dt)
     {
         std::lock_guard<std::mutex> l(lock);
         for (auto i = layers.rbegin(); i != layers.rend(); ++i) {
-            (*i)->layout(dt);
+            (*i)->layout((float_type) dt);
+        }
+    }
+
+    virtual void render(void);
+
+    // 
+    // Randomize coordinates of vertices so that we can break the steady state and
+    // redo the layout
+    // 
+    virtual void randomize(void)
+    {
+        for (auto v : g->vs) {
+            float_type r = 5;
+            v->x = vector3d_type(
+                rand_range(-r, r),
+                rand_range(-r, r),
+                rand_range(-r, r));
+            for (vertex_type *cv = v->coarser; cv != nullptr; cv = cv->coarser) {
+                cv->x = v->x;
+            }
+            for (auto e : v->es) {
+                auto e_styled = dynamic_cast<edge_styled<_coord_type> *>(e);
+                if (e_styled and e_styled->spline) {
+                    e_styled->vspline->x = vector3d_type(
+                        rand_range(-r, r),
+                        rand_range(-r, r),
+                        rand_range(-r, r));
+                }
+            }
         }
     }
 
@@ -104,6 +145,21 @@ public:
         y_min = ymin; y_max = ymax;
         z_min = zmin; z_max = zmax;
     }
+
+    virtual void bounding_box_gl(
+        GLfloat &x_min, GLfloat &x_max,
+        GLfloat &y_min, GLfloat &y_max,
+        GLfloat &z_min, GLfloat &z_max)
+    {
+        _coord_type xmin = -10, xmax = 10;
+        _coord_type ymin = -10, ymax = 10;
+        _coord_type zmin = -10, zmax = 10;
+        bounding_box(xmin, xmax, ymin, ymax, zmin, zmax);
+        x_min = xmin; x_max = xmax;
+        y_min = ymin; y_max = ymax;
+        z_min = zmin; z_max = zmax;
+    }
+
 
     std::mutex lock;
     std::vector<layer_type *> layers;
