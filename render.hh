@@ -5,12 +5,18 @@
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 #include "vertex_edge.hh"
+#include <iostream>
+
 
 void ownglEvalMesh1f (
     /* glEvalMesh1() */ GLenum mode, GLint i1, GLint i2,
     /* glMapGrid1f() */ GLint nu, GLfloat u1_, GLfloat u2_,
     /* glMap1f */ GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint
     uorder, GLfloat *points);
+
+void ownglEvalCoord1f(
+    GLint ustride, GLint uorder, const GLfloat *points, GLfloat t, 
+    GLfloat &x, GLfloat &y, GLfloat &z);
 
 
 void glutSolidSphere(double radius, GLint slices, GLint stacks);
@@ -111,9 +117,9 @@ void edge_styled<_coord_type>::render(void) const
         vspline->x.coord(x1, y1, z1);
         this->b->x.coord(x2, y2, z2);
         GLfloat ctrl_pts[3][3] = {
-            {x0, y0, z0},
-            {x1, y1, z1},
-            {x2, y2, z2}
+            {(GLfloat) x0, (GLfloat) y0, (GLfloat) z0},
+            {(GLfloat) x1, (GLfloat) y1, (GLfloat) z1},
+            {(GLfloat) x2, (GLfloat) y2, (GLfloat) z2}
         };
 
         glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
@@ -124,6 +130,26 @@ void edge_styled<_coord_type>::render(void) const
         //     GL_LINE, 0, 10,
         //     10, 0.0, 1.0,
         //     GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
+
+        // render arrow (if enabled)
+        // if (arrow) {
+        if (1) {
+            double arrow_position = 0.5; // for testing, to be fixed
+            GLfloat x, y, z, x1, y1, z1;
+            ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position, x, y, z);
+            ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position + 0.3, x1, y1, z1);
+            vector3d_type target_dir = vector3d_type(x1 - x, y1 - y, z1 - z).normalized();
+            glTranslatef(x, y, z);
+            auto vec_dir = vector3d_type(0,0,1);
+            _coord_type rot_angle = acos(target_dir.dot(vec_dir));
+            if (fabs(rot_angle) > 1e-6) {
+                vector3d_type rot_axis = target_dir.cross(vec_dir).normalized();
+                rot_axis.coord(x1, y1, z1);
+                glRotatef(-rot_angle * 180 / M_PI, x1, y1, z1);
+            }
+
+            glutSolidCone(2, 4, 20, 20);
+        }
     }
 }
 
