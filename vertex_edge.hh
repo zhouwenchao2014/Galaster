@@ -100,6 +100,8 @@ class edge
 {
 public:
     typedef vertex<_coord_type> vertex_type;
+    typedef vector3d<_coord_type> vector3d_type;
+
     edge(vertex_type *a, vertex_type *b, 
         bool refcounted = true, bool oriented = false)
         : a(a), b(b), cnt(0), 
@@ -126,6 +128,8 @@ class edge_styled : public edge<_coord_type>
 {
 public:
     typedef vertex<_coord_type> vertex_type;
+    typedef vector3d<_coord_type> vector3d_type;
+
     edge_styled(vertex_type *a, vertex_type *b)
         : edge<_coord_type>(a, b, false, false),
           visible(true), 

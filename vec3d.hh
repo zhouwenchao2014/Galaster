@@ -65,6 +65,22 @@ public:
     _float_type mod(void) const {
         return sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     }
+
+    vector3d<_float_type> normalized() const {
+        _float_type k = 1 / mod();
+        return k * (*this);
+    }
+
+    _float_type dot(const vector3d<_float_type> &rhs) const {
+        return rhs.v[0] * v[0] + rhs.v[1] * v[1] + rhs.v[2] * v[2];
+    }
+
+    vector3d<_float_type> cross(const vector3d<_float_type> &rhs) const {
+        _float_type x = v[1] * rhs.v[2] - v[2] * rhs.v[1];
+        _float_type y = v[2] * rhs.v[0] - v[0] * rhs.v[2];
+        _float_type z = v[0] * rhs.v[1] - v[1] * rhs.v[0];
+        return vector3d<_float_type>(x, y, z);
+    }
 };
 
 template <typename _float_type>
@@ -114,6 +130,9 @@ public:
         float s[] = {x, y, z, 0};
         v = _mm_load_ps(s);
     }
+    vector3d(__m128 v)
+        : v(v) {
+    }
     typedef float coord_type;
     static const vector3d<float> zero;
     __m128 v;
@@ -155,6 +174,39 @@ public:
         t = _mm_mul_ps(t, t);
         _mm_store_ps(buf, t);
         return sqrt(buf[0] + buf[1] + buf[2]);
+    }
+
+    vector3d<float> normalized() const {
+        float k = 1 / mod();
+        return k * (*this);
+    }
+
+    float dot(const vector3d<float> &rhs) const {
+        float buf[4];
+        __m128 r = _mm_mul_ps(v, rhs.v);
+        _mm_store_ps(buf, r);
+        return buf[0] + buf[1] + buf[2];
+    }
+
+    vector3d<float> cross(const vector3d<float> &rhs) const {
+        float v0[4], v1[4];
+        _mm_store_ps(v0, v);
+        _mm_store_ps(v1, rhs.v);
+        float x = v0[1] * v1[2] - v0[2] * v1[1];
+        float y = v0[2] * v1[0] - v0[0] * v1[2];
+        float z = v0[0] * v1[1] - v0[1] * v1[0];
+        return vector3d<float>(x, y, z);
+    }
+
+    vector3d<float> cross2(const vector3d<float> &rhs) const {
+        __m128 a = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1,2,0,3));
+        __m128 b = _mm_shuffle_ps(rhs.v, rhs.v, _MM_SHUFFLE(2,0,1,3));
+        a = _mm_mul_ps(a, b);
+        __m128 a1 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2,0,1,3));
+        __m128 b1 = _mm_shuffle_ps(rhs.v, rhs.v, _MM_SHUFFLE(1,2,0,3));
+        a1 = _mm_mul_ps(a1, b1);
+        a = _mm_sub_ps(a, a1);
+        return vector3d<float>(a);
     }
 };
 

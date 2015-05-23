@@ -55,6 +55,25 @@ inline double p1(GLfloat u, int n, GLint ustride, const GLfloat *R, int
     return result;
 }
 
+
+void ownglEvalCoord1f(
+    GLint ustride, GLint uorder, const GLfloat *points, GLfloat t, 
+    GLfloat &x, GLfloat &y, GLfloat &z)
+{
+    const GLint n = uorder - 1;
+    GLfloat x_ = 0, y_ = 0, z_ = 0;
+    for (GLint i = 0; i <= n; i++) {
+        double b = B(n,i,t);
+        x_ += b * points[i*ustride + 0];
+        y_ += b * points[i*ustride + 1];
+        z_ += b * points[i*ustride + 2];
+    }
+    x = x_;
+    y = y_;
+    z = z_;
+}
+
+
 /*
  * Function: ownglEvalMesh1f()
  *
@@ -71,13 +90,10 @@ void ownglEvalMesh1f (
 {
     GLint i;
     GLfloat temp1;
-    const GLfloat du = (u2_ - u1_)/(GLfloat)nu;
-    const GLint n = uorder-1;
-
+      const GLfloat du = (u2_ - u1_)/(GLfloat)nu;
     (void) target;
 
-    switch (mode)
-    {
+    switch (mode) {
         case GL_LINE:
             mode=GL_LINE_STRIP;
             break;
@@ -87,17 +103,22 @@ void ownglEvalMesh1f (
         default:
             return;
     }
-    glBegin (mode);
+
+    glBegin(mode);
     for (i = i1; i <= i2; i += 1)
     {
         temp1 = ((i*du+u1_)-u1)/(u2-u1);
-        glVertex3f (
-            p1( temp1, n, ustride, points, 0),
-            p1( temp1, n, ustride, points, 1),
-            p1( temp1, n, ustride, points, 2) );
+        // glVertex3f (
+        //     p1(temp1, n, ustride, points, 0),
+        //     p1(temp1, n, ustride, points, 1),
+        //     p1(temp1, n, ustride, points, 2) );
+        GLfloat x, y, z;
+        ownglEvalCoord1f(ustride, uorder, points, temp1, x, y, z);
+        glVertex3f(x, y, z);
     }
-    glEnd( );
+    glEnd();
 }
+
 
 
 #endif /* _BEZIER_H_ */

@@ -1,6 +1,7 @@
 #include "graph.hh"
 #include "layout.hh"
 #include "verify.hh"
+#include <iostream>
 #include <unistd.h>
 
 typedef double _float_type;
@@ -172,10 +173,26 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
     int n_layer = 6;
-    int n_vertex = 1000;
+    int n_vertex = 100;
     int n_edges = 3;
     random_test(n_layer, n_vertex, n_vertex * n_edges * 2);
     // layout_test(n_layer, n_vertex, n_edges);
+
+    vector3d<float> v0(1,2,3), v1(4,5,6);
+    vector3d<float> v = v0.cross(v1);
+    // v = v.normalized();
+    // std::cout << v.mod() << std::endl;
+    // v0 = v0.normalized();
+    // std::cout << v0.mod() << std::endl;
+    // v1 = v1.normalized();
+    // std::cout << v1.mod() << std::endl;
+    // std::cout << "dot: " << v0.dot(v1) << std::endl;
+
+    float x, y, z;
+    v.coord(x, y, z);
+    std::cout << "cross: " << x << ", " << y << ", " << z << std::endl;
+    v.normalized().coord(x, y, z);
+    std::cout << "cross: " << x << ", " << y << ", " << z << std::endl;
 
     return 0;
 }
