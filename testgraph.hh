@@ -336,6 +336,8 @@ struct binary_tree {
                 left_edge = new edge_styled<_float_type>(vertex, left->vertex);
                 left_edge->oriented = true;
                 left_edge->visible = false;
+                // left_edge->arrow = true;
+                // left_edge->set_spline();
 
                 // usleep(5000);
                 graph->add_edge(left_edge);
@@ -367,6 +369,8 @@ struct binary_tree {
                 right_edge = new edge_styled<_float_type>(vertex, right->vertex);
                 right_edge->oriented = true;
                 right_edge->visible = false;
+                // right_edge->arrow = true;
+                // right_edge->set_spline();
 
                 // usleep(5000);
                 graph->add_edge(right_edge);

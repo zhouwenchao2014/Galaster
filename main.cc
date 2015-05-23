@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
     glfwSwapInterval(1);
 
     srand(time(NULL));
-    int n_layer = 1;
+    int n_layer = 6;
     if (mode == RANDOM) {
         int n_vertex = 300;
         int n_edges = 3;
