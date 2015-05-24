@@ -26,74 +26,49 @@ graph_type *generate_splineorama_graph(int n_layers)
 
     centroid = new vertex_styled<_float_type>(0,0,0);
     centroid->shape = shape_type::sphere;
-    centroid->color = color_type(50,50,50);
+    centroid->color = color_type(20,20,20);
     centroid->shape_detail = 50;
     centroid->size = 30;
     graph->add_vertex(centroid);
-    
-    return graph;
-}
 
+    std::vector<vertex_styled<_float_type> *> vs;
+    _float_type r = 5;
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (!g_graph) return;
-    if (key == 'A' and action == GLFW_RELEASE) {
-        new std::thread([&]() {
-                std::vector<vertex_styled<_float_type> *> vs;
-                graph_type *graph = the_graph;
-                _float_type r = 5;
+    for (int k = 0; k < n_vertex; k++) {
+        auto v = new vertex_styled<_float_type>(
+            rand_range(-r, r),
+            rand_range(-r, r),
+            rand_range(-r, r));
+        v->shape = shape_type::sphere;
+        v->color = color_type(
+            rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
+        v->size = 7;
+        v->shape_detail = 30;
+        graph->add_vertex(v);
+        vs.push_back(v);
 
-                for (int k = 0; k < n_vertex; k++) {
-                    auto v = new vertex_styled<_float_type>(
-                        rand_range(-r, r),
-                        rand_range(-r, r),
-                        rand_range(-r, r));
-                    v->shape = shape_type::sphere;
-                    v->color = color_type(
-                        rand_range(0,1), rand_range(0,1), rand_range(0,1));
-                    v->size = 7;
-                    v->shape_detail = 30;
-                    graph->add_vertex(v);
-                    vs.push_back(v);
-
-                    auto e = new edge_styled<_float_type>(centroid, v);
-                    // e->set_spline();
-                    e->strength = 0.1;
-                    e->color = color_type(0.15, 0.15, 0.15);
-                    graph->add_edge(e);
-                    usleep(10000);
-                }
-
-                for (int i = 0; i < n_vertex; i++) {
-                    for (int j = i + 1; j < n_vertex; j++) {
-                        if (rand_range(0,1) < 4.0 / n_vertex) {
-                            auto e = new edge_styled<_float_type>(
-                                vs[i],
-                                vs[j]);
-                            e->stroke = stroke_type::dashed;
-                            e->set_spline();
-                            graph->add_edge(e);
-                            e->color = color_type(
-                                rand_range(0.3,0.5), rand_range(0.3,0.5), rand_range(0.3,0.5));
-                            usleep(10000);
-                        }
-                    }
-                }
-            });
+        auto e = new edge_styled<_float_type>(centroid, v);
+        e->set_spline();
+        e->color = color_type(0.2, 0.2, 0.2);
+        graph->add_edge(e);
     }
-    if (key == 'D' and action == GLFW_RELEASE) {
-        graph_type *graph = the_graph;
-        auto vs = graph->g->vs;
-        for (auto it = vs.rbegin(); it != vs.rend(); it++) {
-            if (*it != centroid) {
-                graph->remove_vertex(*it);
+
+    for (int i = 0; i < n_vertex; i++) {
+        for (int j = i + 1; j < n_vertex; j++) {
+            if (rand_range(0,1) < 2.0 / n_vertex) {
+                auto e = new edge_styled<_float_type>(
+                    vs[i],
+                    vs[j]);
+                e->stroke = stroke_type::dashed;
+                e->set_spline();
+                graph->add_edge(e);
+                e->color = color_type(
+                    rand_range(0.1,0.2), rand_range(0.1,0.2), rand_range(0.1,0.2));
             }
         }
     }
-    else {
-        galaster_key_callback(window, key, scancode, action, mods);
-    }
+
+    return graph;
 }
 
 
@@ -102,8 +77,7 @@ int main(void)
     GLFWwindow *window = galaster_init();
     if (window) {
         the_graph = generate_splineorama_graph(1);
-        glfwSetKeyCallback(window, key_callback);
-        galaster_run(window, the_graph, 3.0);
+        galaster_run(window, the_graph, 0.2);
     }
     delete the_graph;
     return 0;
