@@ -40,7 +40,7 @@ public:
     double greend(void) const { return g; }
     double blued(void) const { return b; }
 
-    static const color_type red, green, blue, white;
+    static const color_type red, green, blue, white, darkgray;
 };
 
 
