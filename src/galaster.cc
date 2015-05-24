@@ -141,13 +141,22 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
 
 void init_opengl(void)
 {
-    // Use Gouraud (smooth) shading
-    glShadeModel(GL_SMOOTH);
-
-    // Switch on the z-buffer
+    // Enable OpenGL features
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_LIGHT0);
+    // glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_COLOR);
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_AUTO_NORMAL);
+    glEnable(GL_MAP1_VERTEX_3);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_LINE_STIPPLE);
     glEnable(GL_DEPTH_TEST);
 
-    glPointSize(2.0);
+    // Use Gouraud (smooth) shading and color material
+    glShadeModel(GL_SMOOTH);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
     // Background color is black
     glClearColor(0, 0, 0, 0);
@@ -164,18 +173,10 @@ void init_opengl(void)
     glLightfv(GL_LIGHT1, GL_AMBIENT_AND_DIFFUSE, light_ambient);
     glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
-    // Enable OpenGL features
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_COLOR);
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_AUTO_NORMAL);
-    glEnable(GL_MAP1_VERTEX_3);
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_LINE_STIPPLE);
-    glEnable(GL_DEPTH_TEST);
+
+    GLfloat specReflection[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
+    glMateriali(GL_FRONT, GL_SHININESS, 96);
 }
 
 
