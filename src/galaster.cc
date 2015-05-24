@@ -31,11 +31,11 @@ struct camera_view_type
     double step = 0.1;
 
     void on_wayin(void) {
-        zoom_factor -= 500;
+        zoom_factor -= zoom * step;
     }
 
     void on_wayout(void) {
-        zoom_factor += 500;
+        zoom_factor += zoom * step;
     }
 
     void on_forward(void) {
@@ -134,7 +134,6 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
     // Change to the projection matrix and set our viewing volume
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    // gluPerspective(60.0, ratio, 1.0, 1024.0);
     gluPerspective(60.0, ratio, 1.0, 10240.0);
 }
 
