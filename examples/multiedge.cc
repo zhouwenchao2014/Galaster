@@ -28,6 +28,7 @@ graph_type *generate_multiedge_graph(int n_layers)
         rand_range(-r, r),
         rand_range(-r, r));
     v0->shape = shape_type::sphere;
+    v0->shape_detail = 50;
     v0->color = color_type::red;
     graph->add_vertex(v0);
 
@@ -36,6 +37,7 @@ graph_type *generate_multiedge_graph(int n_layers)
         rand_range(-r, r),
         rand_range(-r, r));
     v1->shape = shape_type::sphere;
+    v1->shape_detail = 50;
     v1->color = color_type(20,20,20);
     graph->add_vertex(v1);
 
@@ -70,7 +72,7 @@ int main(void)
     if (window) {
         the_graph = generate_multiedge_graph(6);
         glfwSetKeyCallback(window, key_callback);
-        galaster_run(window, the_graph);
+        galaster_run(window, the_graph, 0.01);
     }
     delete the_graph;
     return 0;

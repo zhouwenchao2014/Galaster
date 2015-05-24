@@ -43,7 +43,7 @@ struct binary_tree {
                 left->vertex->color = color_type::white;
                 left_edge->visible = true;
                 left->vertex->visible = true;
-                left_edge->color = color_type(100, 200, 100);
+                left_edge->color = color_type::darkgray;
                 left->vertex->color = color_type::blue;
             }
             else {
@@ -51,7 +51,7 @@ struct binary_tree {
                 left->add(k);
                 
                 left->vertex->color = color_type::white;
-                left_edge->color = color_type(100, 200, 100);
+                left_edge->color = color_type::darkgray;
                 left->vertex->color = color_type::blue;
             }
         }
@@ -69,14 +69,14 @@ struct binary_tree {
                 right->vertex->color = color_type::white;
                 right_edge->visible = true;
                 right->vertex->visible = true;
-                right_edge->color = color_type(100, 200, 100);
+                right_edge->color = color_type::darkgray;
                 right->vertex->color = color_type::blue;
 
             }
             else {
                 right_edge->color = color_type::white;
                 right->add(k);
-                right_edge->color = color_type(100, 200, 100);
+                right_edge->color = color_type::darkgray;
                 right->vertex->color = color_type::blue;
             }
         }

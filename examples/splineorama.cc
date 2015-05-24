@@ -60,7 +60,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                     auto e = new edge_styled<_float_type>(centroid, v);
                     // e->set_spline();
                     e->strength = 0.1;
-                    e->color = color_type(0.3, 0.3, 0.3);
+                    e->color = color_type(0.15, 0.15, 0.15);
                     graph->add_edge(e);
                     usleep(10000);
                 }
@@ -75,7 +75,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                             e->set_spline();
                             graph->add_edge(e);
                             e->color = color_type(
-                                rand_range(0.5,1.0), rand_range(0.5,1.0), rand_range(0.5,1.0));
+                                rand_range(0.3,0.5), rand_range(0.3,0.5), rand_range(0.3,0.5));
                             usleep(10000);
                         }
                     }
