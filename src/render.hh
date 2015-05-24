@@ -135,10 +135,12 @@ void edge_styled<_coord_type>::render(void) const
     _coord_type ax = 0, ay = 0, az = 0;
 
     if (!spline) {
+        glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
         glVertex3f(x0, y0, z0);
         glVertex3f(x1, y1, z1);
         glEnd();
+        glEnable(GL_LIGHTING);
 
         // calculate arrow position and direction
         if (arrow) {
@@ -159,9 +161,11 @@ void edge_styled<_coord_type>::render(void) const
                 {(GLfloat) x1, (GLfloat) y1, (GLfloat) z1},
                 {(GLfloat) x2, (GLfloat) y2, (GLfloat) z2}
             };
+            glDisable(GL_LIGHTING);
             glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 3, &ctrl_pts[0][0]);
             glMapGrid1f(10, 0.0, 1.0);
             glEvalMesh1(GL_LINE, 0, 10);
+            glEnable(GL_LIGHTING);
 
             // calculate arrow position and direction
             if (arrow) {
@@ -188,10 +192,12 @@ void edge_styled<_coord_type>::render(void) const
                 {(GLfloat) (x0 + dx), (GLfloat) (y0 + k), (GLfloat) (z0 + dz)},
                 {(GLfloat) x0, (GLfloat) y0, (GLfloat) z0},
             };
+            glDisable(GL_LIGHTING);
             ownglEvalMesh1f (
                 GL_LINE, 0, 50,
                 50, 0.0, 1.0,
                 GL_MAP1_VERTEX_4, 0.0, 1.0, 3, 4, &ctrl_pts[0][0]);
+            glEnable(GL_LIGHTING);
 
             // calculate arrow position and direction
             if (arrow) {

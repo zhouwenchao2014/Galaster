@@ -163,7 +163,7 @@ public:
     double arrow_position = 0.5;
     double arrow_radius = 1.0;
     double arrow_length = 1.0;
-    color_type color = color_type::blue;
+    color_type color = color_type::darkgray;
     std::string label = "";
     std::string font_family = "Helvetica";
     color_type font_color = color_type::white;
