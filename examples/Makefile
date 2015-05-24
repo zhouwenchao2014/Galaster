@@ -8,7 +8,7 @@ ifeq ($(UNAME), Linux)
 CXXFLAGS += -lGL -lGLU
 endif
 
-targets = libgalaster.so binary_tree cube membrane random randspline multiedge splineorama
+targets = libgalaster.so binary_tree cube membrane random randspline multiedge splineorama splineorama2 
 
 .PHONY: all clean
 all: $(targets)
