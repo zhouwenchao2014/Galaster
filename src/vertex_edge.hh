@@ -48,6 +48,18 @@ public:
     // (coarsen) specified edge
     bool neihash(const edge_type *new_e) const;
 
+#ifdef SSE_INTRINSINC
+	void *operator new (size_t size) {
+		void *p = _mm_malloc(size, 16);
+		if (!p) throw std::bad_alloc ();
+		return p;
+	}
+
+	void operator delete (void *p) {
+		_mm_free(p);
+	}
+#endif
+
     static int vertex_id;
     int id;
     vector3d_type x = vector3d_type::zero;

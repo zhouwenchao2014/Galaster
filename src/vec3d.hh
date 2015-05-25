@@ -5,6 +5,7 @@
 #if defined(__SSE__) || defined(_M_IX86_FP)
 #define SSE_INTRINSINC
 #include <xmmintrin.h>
+#include <type_traits>
 #endif
 #include <cmath>
 #include <algorithm>
@@ -126,8 +127,14 @@ vector3d<_float_type> operator - (
 template <>
 class vector3d<float> {
 public:
+	typedef typename std::aligned_storage<4, 16>::type sse_aligned[4];
     vector3d(float x, float y, float z) {
-        float s[] = {x, y, z, 0};
+		sse_aligned data;
+        float *s = reinterpret_cast<float *>(&data);
+		s[0] = x;
+		s[1] = y;
+		s[2] = z;
+		s[3] = 0;
         v = _mm_load_ps(s);
     }
     vector3d(__m128 v)
@@ -161,7 +168,8 @@ public:
     }
 
     void coord(float &x, float &y, float &z) const {
-        float buf[4];
+		sse_aligned data;
+		float *buf = reinterpret_cast<float *>(&data);
         _mm_store_ps(buf, v);
         x = buf[0];
         y = buf[1];
@@ -169,7 +177,8 @@ public:
     }
 
     float mod(void) const {
-        float buf[4];
+		sse_aligned data;
+		float *buf = reinterpret_cast<float *>(&data);
         __m128 t = v;
         t = _mm_mul_ps(t, t);
         _mm_store_ps(buf, t);
@@ -182,14 +191,17 @@ public:
     }
 
     float dot(const vector3d<float> &rhs) const {
-        float buf[4];
+		sse_aligned data;
+		float *buf = reinterpret_cast<float *>(&data);
         __m128 r = _mm_mul_ps(v, rhs.v);
         _mm_store_ps(buf, r);
         return buf[0] + buf[1] + buf[2];
     }
 
     vector3d<float> cross(const vector3d<float> &rhs) const {
-        float v0[4], v1[4];
+		sse_aligned data0, data1;
+		float *v0 = reinterpret_cast<float *>(&data0);
+		float *v1 = reinterpret_cast<float *>(&data1);
         _mm_store_ps(v0, v);
         _mm_store_ps(v1, rhs.v);
         float x = v0[1] * v1[2] - v0[2] * v1[1];
