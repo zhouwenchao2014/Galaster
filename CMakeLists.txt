@@ -7,7 +7,7 @@ find_package(OpenGL)
 find_package(PkgConfig)
 pkg_check_modules(GLFW glfw3)
 
-add_definitions(-std=c++11 -Wall)
+add_definitions(-std=c++11 -Wall -O3 -march=native)
 
 add_subdirectory(src)
 add_subdirectory(examples)
