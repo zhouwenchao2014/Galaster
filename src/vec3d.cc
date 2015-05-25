@@ -1,6 +1,8 @@
 #include "vec3d.hh"
 
 
+#ifdef SSE_INTRINSINC
+
 const vector3d<float> vector3d<float>::zero(.0, .0, .0);
 
 
@@ -31,3 +33,6 @@ vector3d<float> operator - (
     c -= b;
     return c;
 }
+
+
+#endif
