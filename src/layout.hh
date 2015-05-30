@@ -6,6 +6,8 @@
 #include "spatial_octree.hh"
 
 
+#define REPULSION_BRUTE_FORCE
+
 
 // 
 // Figure out the size of the bounding box stretched by specified vertices
@@ -110,6 +112,7 @@ void layer<_coord_type>::layout(float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) apply_displacement(v, dt);
 
+#ifndef REPULSION_BRUTE_FORCE
     // construct spatial octree
     _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
     bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);    
@@ -119,13 +122,18 @@ void layer<_coord_type>::layout(float_type dt)
         y_min, y_max, 
         z_min, z_max);
     for (auto v : vs) t->insert(v);
+#endif
 
     // calculate force/acceleration with Lagrange Dynamics
     size_t n_vs = vs.size();
 #pragma omp parallel for
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
+#ifndef REPULSION_BRUTE_FORCE
         vector3d_type F_r = t->repulsion_force(v, f0, eps);
+#else
+        vector3d_type F_r = repulsion_force(v, vs);
+#endif
         vector3d_type F_p = vector3d_type::zero;
         
         // spring forces on v
@@ -140,7 +148,9 @@ void layer<_coord_type>::layout(float_type dt)
         v->ddx_ = F_r + F_p;
     }
 
+#ifndef REPULSION_BRUTE_FORCE
     t->recycle();
+#endif
 
     for (auto v : vs) {
         update_velocity(v, dt);
@@ -173,6 +183,7 @@ void finest_layer<_coord_type>::layout(float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) this->apply_displacement(v, dt);
 
+#ifndef REPULSION_BRUTE_FORCE
     // construct spatial octree
     _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
     bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);
@@ -182,13 +193,18 @@ void finest_layer<_coord_type>::layout(float_type dt)
         y_min, y_max, 
         z_min, z_max);
     for (auto v : vs) t->insert(v);
+#endif
 
     // calculate force/acceleration with Lagrange Dynamics
     size_t n_vs = vs.size();
 #pragma omp parallel for
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
+#ifndef REPULSION_BRUTE_FORCE
         vector3d_type F_r = t->repulsion_force(v, this->f0, this->eps);
+#else
+        vector3d_type F_r = this->repulsion_force(v, vs);
+#endif
         vector3d_type F_p = vector3d_type::zero;
 
         // spring forces on v
@@ -208,8 +224,9 @@ void finest_layer<_coord_type>::layout(float_type dt)
         // net force on v
         v->ddx_ = F_r + F_p;
     }
-
+#ifndef REPULSION_BRUTE_FORCE
     t->recycle();
+#endif
     
     for (auto v : vs) {
         this->update_velocity(v, dt);
