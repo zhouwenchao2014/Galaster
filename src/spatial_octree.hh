@@ -35,8 +35,39 @@ public:
         }
     }
 
-    ~spatial_octree(void) {
-        for (int i = 0; i < 8; i++) delete subspaces[i];
+    void reset(vertex_type *v,
+        float_type x_min, float_type x_max,
+        float_type y_min, float_type y_max,
+        float_type z_min, float_type z_max)
+    {
+        this->v = v;
+        this->x_min = x_min;
+        this->x_max = x_max;
+        this->y_min = y_min;
+        this->y_max = y_max;
+        this->z_min = z_min;
+        this->z_max = z_max;
+        this->x = 0.5 * (x_min + x_max);
+        this->y = 0.5 * (y_min + y_max);
+        this->z = 0.5 * (z_min + z_max);
+        memset(subspaces, 0, sizeof(subspaces));
+        if (v) {
+            n_vertices = 1;
+            c = v->x;
+        }
+        else {
+            n_vertices = 0;
+            c = vector3d_type::zero;
+        }
+    }
+
+    ~spatial_octree(void) = delete;
+
+    void recycle(void) {
+        for (int i = 0; i < 8; i++) {
+            if (subspaces[i]) subspaces[i]->recycle();
+        }
+        dealloc(this);
     }
 
     void insert(vertex_type *v)
@@ -47,7 +78,7 @@ public:
         if (vx > x_max || vx < x_min ||
             vy > y_max || vy < y_min || 
             vz > z_max || vz < z_min) {
-            printf("v(%f, %f, %f) is out of bounding box\n", vx, vy, vz);
+            printf("v(%f, %f, %f) is out of the bounding box\n", vx, vy, vz);
             exit(-1);
         }
 
@@ -68,7 +99,7 @@ public:
             if (lz) v_zmin = z, v_zmax = z_max;
             else    v_zmin = z_min, v_zmax = z;
 
-            subspaces[i_subspace] = new spatial_octree(
+            subspaces[i_subspace] = alloc(
                 v, v_xmin, v_xmax, v_ymin, v_ymax, v_zmin, v_zmax);
 
             n_vertices += 1;
@@ -132,7 +163,36 @@ public:
         }
     }
 
-// protected:
+    // 
+    // object pool for faster allocation/deallocation
+    // 
+    static std::vector<spatial_octree<_coord_type> *> objpool;
+
+    static spatial_octree *alloc(
+        vertex_type *v,
+        float_type x_min, float_type x_max,
+        float_type y_min, float_type y_max,
+        float_type z_min, float_type z_max)
+    {
+        if (!objpool.empty()) {
+            auto obj = objpool.back();
+            objpool.pop_back();
+            obj->reset(v, x_min, x_max, y_min, y_max, z_min, z_max);
+            return obj;
+        }
+        else {
+            return new spatial_octree<_coord_type>(v, 
+                x_min, x_max,
+                y_min, y_max,
+                z_min, z_max);
+        }
+    }
+
+    static void dealloc(spatial_octree<_coord_type> *t) {
+        objpool.push_back(t);
+    }
+
+
     vertex_type *v;
     int n_vertices;
     vector3d_type c;
@@ -140,6 +200,10 @@ public:
     float_type x_min, x_max, y_min, y_max, z_min, z_max;
     spatial_octree *subspaces[8];
 };
+
+
+template <typename _coord_type>
+std::vector<spatial_octree<_coord_type> *> spatial_octree<_coord_type>::objpool;
 
 
 

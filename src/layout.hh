@@ -113,18 +113,19 @@ void layer<_coord_type>::layout(float_type dt)
     // construct spatial octree
     _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
     bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);    
-    spatial_octree<_coord_type> t(nullptr, 
+    spatial_octree<_coord_type> *t = spatial_octree<_coord_type>::alloc(
+        nullptr, 
         x_min, x_max, 
         y_min, y_max, 
         z_min, z_max);
-    for (auto v : vs) t.insert(v);
+    for (auto v : vs) t->insert(v);
 
     // calculate force/acceleration with Lagrange Dynamics
     size_t n_vs = vs.size();
 #pragma omp parallel for
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
-        vector3d_type F_r = t.repulsion_force(v, f0, eps);
+        vector3d_type F_r = t->repulsion_force(v, f0, eps);
         vector3d_type F_p = vector3d_type::zero;
         
         // spring forces on v
@@ -138,6 +139,8 @@ void layer<_coord_type>::layout(float_type dt)
         // net force on v
         v->ddx_ = F_r + F_p;
     }
+
+    t->recycle();
 
     for (auto v : vs) {
         update_velocity(v, dt);
@@ -173,18 +176,19 @@ void finest_layer<_coord_type>::layout(float_type dt)
     // construct spatial octree
     _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
     bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);
-    spatial_octree<_coord_type> t(nullptr, 
+    spatial_octree<_coord_type> *t = spatial_octree<_coord_type>::alloc(
+        nullptr, 
         x_min, x_max, 
         y_min, y_max, 
         z_min, z_max);
-    for (auto v : vs) t.insert(v);
+    for (auto v : vs) t->insert(v);
 
     // calculate force/acceleration with Lagrange Dynamics
     size_t n_vs = vs.size();
 #pragma omp parallel for
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
-        vector3d_type F_r = t.repulsion_force(v, this->f0, this->eps);
+        vector3d_type F_r = t->repulsion_force(v, this->f0, this->eps);
         vector3d_type F_p = vector3d_type::zero;
 
         // spring forces on v
@@ -204,6 +208,8 @@ void finest_layer<_coord_type>::layout(float_type dt)
         // net force on v
         v->ddx_ = F_r + F_p;
     }
+
+    t->recycle();
     
     for (auto v : vs) {
         this->update_velocity(v, dt);
