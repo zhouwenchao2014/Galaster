@@ -123,7 +123,6 @@ public:
         }
     }
 
-
     // 
     // Apply numerical methods on the Lagrange Dynamics formed by the spring system
     // defined by this graph.
@@ -273,7 +272,7 @@ public:
         : layer<_coord_type>(f0, K, eps, damping, dilation) {
     }
 
-    virtual void layout(float_type dt);    
+    virtual void layout(float_type dt);
 };
 
 
