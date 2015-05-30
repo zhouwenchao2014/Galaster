@@ -3,6 +3,39 @@
 
 
 #include "layer.hh"
+#include "spatial_octree.hh"
+
+
+
+// 
+// Figure out the size of the bounding box stretched by specified vertices
+// 
+template <typename _coord_type>
+inline void bounding_box(
+    const std::vector<vertex<_coord_type> *> &vs,
+    _coord_type &x_min, _coord_type &x_max,
+    _coord_type &y_min, _coord_type &y_max,
+    _coord_type &z_min, _coord_type &z_max)
+{
+    _coord_type xmin = -10, xmax = 10;
+    _coord_type ymin = -10, ymax = 10;
+    _coord_type zmin = -10, zmax = 10;
+
+    for (auto v : vs) {
+        _coord_type x, y, z;
+        v->x.coord(x, y, z);
+        xmin = std::min(xmin, x);
+        xmax = std::max(xmax, x);
+        ymin = std::min(ymin, y);
+        ymax = std::max(ymax, y);
+        zmin = std::min(zmin, z);
+        zmax = std::max(zmax, z);
+    }
+
+    x_min = xmin - 10; x_max = xmax + 10;
+    y_min = ymin - 10; y_max = ymax + 10;
+    z_min = zmin - 10; z_max = zmax + 10;
+}
 
 
 // 
@@ -77,10 +110,19 @@ void layer<_coord_type>::layout(float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) apply_displacement(v, dt);
 
+    _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
+    bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);    
+    spatial_octree<_coord_type> t(nullptr, 
+        x_min, x_max, 
+        y_min, y_max, 
+        z_min, z_max);
+    for (auto v : vs) t.insert(v);
+
     // calculate force/acceleration with Lagrange Dynamics
 #pragma omp parallel for
     for (auto v : vs) {
-        vector3d_type F_r = repulsion_force(v, vs);
+        // vector3d_type F_r = repulsion_force(v, vs);
+        vector3d_type F_r = t.repulsion_force(v, f0, eps);
         vector3d_type F_p = vector3d_type::zero;
         
         // spring forces on v
@@ -123,10 +165,19 @@ void finest_layer<_coord_type>::layout(float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) this->apply_displacement(v, dt);
 
+    _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
+    bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);
+    spatial_octree<_coord_type> t(nullptr, 
+        x_min, x_max, 
+        y_min, y_max, 
+        z_min, z_max);
+    for (auto v : vs) t.insert(v);
+
     // calculate force/acceleration with Lagrange Dynamics
 #pragma omp parallel for
     for (auto v : vs) {
-        vector3d_type F_r = this->repulsion_force(v, vs);
+        // vector3d_type F_r = this->repulsion_force(v, vs);
+        vector3d_type F_r = t.repulsion_force(v, this->f0, this->eps);
         vector3d_type F_p = vector3d_type::zero;
 
         // spring forces on v
