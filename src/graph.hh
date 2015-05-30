@@ -105,7 +105,7 @@ public:
             }
             for (auto e : v->es) {
                 auto e_styled = dynamic_cast<edge_styled<_coord_type> *>(e);
-                if (e_styled and e_styled->spline) {
+                if (e_styled and e_styled->spline and e_styled->vspline) {
                     e_styled->vspline->x = vector3d_type(
                         rand_range(-r, r),
                         rand_range(-r, r),

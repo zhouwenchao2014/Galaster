@@ -19,9 +19,9 @@ struct binary_tree {
         _float_type x, y, z;
         vecx.coord(x, y, z);
         vertex = new vertex_styled<_float_type>(
-            x + rand_range(-0.5, 0.5), 
-            y + rand_range(0.5, 1.0), 
-            z + rand_range(-0.5, 0.5));
+            x + rand_range(-5, 5),
+            y - 5,
+            z + rand_range(-5, 5));
         vertex->shape = shape_type::sphere;
         vertex->size = 3;
         vertex->visible = false;
@@ -125,7 +125,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         static std::mutex uniq_thread;
         if (uniq_thread.try_lock()) {
             new std::thread([&]() {
-                    for  (int k = 0; k < 1000; k++) {
+                    for  (int k = 0; k < 400; k++) {
+                        binary_tree_add_node();
+                        binary_tree_add_node();
+                        binary_tree_add_node();
+                        binary_tree_add_node();
                         binary_tree_add_node();
                         usleep(5000);
                     }

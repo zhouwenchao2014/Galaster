@@ -149,7 +149,7 @@ void edge_styled<_coord_type>::render(void) const
             (this->a->x + dvertex * (_coord_type) arrow_position).coord(ax, ay, az);
         }
     }
-    else {
+    else if (vspline) {
         _coord_type x0,y0,z0, x1,y1,z1, x2,y2,z2;
         this->a->x.coord(x0, y0, z0);
         vspline->x.coord(x1, y1, z1);

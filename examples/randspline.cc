@@ -37,7 +37,8 @@ graph_type *generate_splineedge_graph(int n_layers, int n_vertex, int n_edge)
             int x2 = rand_range(0, n_vertex - 1);
             auto e = new edge_styled<_float_type>(
                 graph->g->vs[k], graph->g->vs[x2]);
-            e->set_spline();
+            // e->set_spline();
+            e->spline = true;
             e->arrow = true;
             e->arrow_position = rand_range(0, 1);
             e->arrow_radius = 3;

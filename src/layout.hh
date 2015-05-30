@@ -110,6 +110,7 @@ void layer<_coord_type>::layout(float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) apply_displacement(v, dt);
 
+    // construct spatial octree
     _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
     bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);    
     spatial_octree<_coord_type> t(nullptr, 
@@ -119,9 +120,10 @@ void layer<_coord_type>::layout(float_type dt)
     for (auto v : vs) t.insert(v);
 
     // calculate force/acceleration with Lagrange Dynamics
+    size_t n_vs = vs.size();
 #pragma omp parallel for
-    for (auto v : vs) {
-        // vector3d_type F_r = repulsion_force(v, vs);
+    for (size_t i = 0; i < n_vs; i++) {
+        auto v = vs[i];
         vector3d_type F_r = t.repulsion_force(v, f0, eps);
         vector3d_type F_p = vector3d_type::zero;
         
@@ -147,9 +149,11 @@ template <typename _coord_type>
 void finest_layer<_coord_type>::layout(float_type dt)
 {
     // 
-    // [Take centroid vertices of spline edges into consideration] We need to merge
+    // [Take centroid vertices of spline edges into consideration] We need to stuff
     // all vertices (including real vertices and virtual centroid vertices of spline
-    // edges into one unique vertex array
+    // edges into one unique vertex array, thus the following vertex layout algorithm
+    // will operate on all kinds of vertices regardless of whether the vertex is a
+    // real styled vertex or edge centroid vertex
     // 
     std::vector<vertex_type *> vs = this->vs;
     for (auto v : this->vs) {
@@ -157,6 +161,7 @@ void finest_layer<_coord_type>::layout(float_type dt)
             auto e_styled = static_cast<edge_styled<_coord_type> *>(e);
             assert(e_styled != nullptr);
             if (e_styled->spline and e->a == v) {
+                if (!e_styled->vspline) e_styled->set_spline();
                 vs.push_back(e_styled->vspline);
             }
         }
@@ -165,6 +170,7 @@ void finest_layer<_coord_type>::layout(float_type dt)
     // move vertices with verlet integration on this layer
     for (auto v : vs) this->apply_displacement(v, dt);
 
+    // construct spatial octree
     _coord_type x_min, x_max, y_min, y_max, z_min, z_max;
     bounding_box(vs, x_min, x_max, y_min, y_max, z_min, z_max);
     spatial_octree<_coord_type> t(nullptr, 
@@ -174,9 +180,10 @@ void finest_layer<_coord_type>::layout(float_type dt)
     for (auto v : vs) t.insert(v);
 
     // calculate force/acceleration with Lagrange Dynamics
+    size_t n_vs = vs.size();
 #pragma omp parallel for
-    for (auto v : vs) {
-        // vector3d_type F_r = this->repulsion_force(v, vs);
+    for (size_t i = 0; i < n_vs; i++) {
+        auto v = vs[i];
         vector3d_type F_r = t.repulsion_force(v, this->f0, this->eps);
         vector3d_type F_p = vector3d_type::zero;
 
