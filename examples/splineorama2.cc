@@ -72,7 +72,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                                 vs[i],
                                 vs[j]);
                             e->stroke = stroke_type::dashed;
-                            e->set_spline();
+                            // e->set_spline();
+                            e->spline = true;
                             graph->add_edge(e);
                             e->color = color_type(
                                 rand_range(0.3,0.5), rand_range(0.3,0.5), rand_range(0.3,0.5));
@@ -101,9 +102,9 @@ int main(void)
 {
     GLFWwindow *window = galaster_init();
     if (window) {
-        the_graph = generate_splineorama_graph(1);
+        the_graph = generate_splineorama_graph(6);
         glfwSetKeyCallback(window, key_callback);
-        galaster_run(window, the_graph, 3.0);
+        galaster_run(window, the_graph, 1.0);
     }
     delete the_graph;
     return 0;

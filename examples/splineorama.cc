@@ -63,7 +63,7 @@ graph_type *generate_splineorama_graph(int n_layers)
                 e->set_spline();
                 graph->add_edge(e);
                 e->color = color_type(
-                    rand_range(0.1,0.2), rand_range(0.1,0.2), rand_range(0.1,0.2));
+                    rand_range(0.2,0.3), rand_range(0.2,0.3), rand_range(0.2,0.3));
             }
         }
     }
