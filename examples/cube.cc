@@ -59,7 +59,7 @@ graph_type *generate_cube(int n_layers, int m, bool spline)
 
 int main(void)
 {
-    graph_type *graph = generate_cube(6, 8, false);
+    graph_type *graph = generate_cube(6, 10, false);
 
     GLFWwindow *window = galaster_init();
     if (window) galaster_run(window, graph);
