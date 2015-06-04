@@ -5,6 +5,7 @@
 #include "layout.hh"
 #include "verify.hh"
 #include "render.hh"
+#include <thread>
 
 
 enum graph_mode {
@@ -237,25 +238,25 @@ int galaster_run(GLFWwindow *window, graph_base *graph, double dt)
 {
     g_graph = graph;
 
-    // Initialize timer
-    double t, dt_total, t_old;
-    t_old = glfwGetTime() - 0.01;
+    // launch a worker thread for layout the graph
+    auto layout_thread = new std::thread([=]() {
+            double l_dt = dt;
+            while (!glfwWindowShouldClose(window)) {
+                double max_ddx = graph->layout(l_dt);
+                l_dt = std::max(std::min(log(max_ddx), dt * 2), dt);
+            }
+        });
 
+    // render the graph in current thread
     while (!glfwWindowShouldClose(window))
     {
-        // layout scene
-        do {
-            graph->layout(dt);
-            t = glfwGetTime();
-            dt_total = t - t_old;
-        } while (dt_total < 0.02);
-        t_old = t;
-
-        // render scene
         draw_scene(window, graph);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    layout_thread->join();
+    delete layout_thread;
 
     glfwDestroyWindow(window);
     glfwTerminate();

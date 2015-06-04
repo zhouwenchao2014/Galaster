@@ -39,7 +39,7 @@ void graph<_coord_type>::render(void)
 {
     GLfloat modelview[4 * 4];
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
-    lock.lock();
+    lock.read_lock();
     for (auto v : g->vs) {
         glLoadMatrixf(modelview);
         static_cast<vertex_styled<_coord_type> *>(v)->render();

@@ -51,17 +51,20 @@ vector3d<_coord_type> layer<_coord_type>::repulsion_force(
     const std::vector<vertex_type *> &vs)
 {
     vector3d_type F_r = vector3d_type::zero;
+    _coord_type reps = 2 / sqrt(eps);
     for (auto v2 : vs) {
         if (v != v2) {
             auto dx = v->x - v2->x;
-            auto dd = dx.mod();
-            auto denom = eps + dd;
-            auto fac = f0 / (denom * denom * denom);
-            if (dd < eps)
+            auto rdd = dx.rmod();
+            auto denom = rdd;
+            auto fac = f0 * (denom * denom * denom);
+            if (rdd > reps) {
+                fac = 1;
                 dx = vector3d_type(
-                    rand_range(-eps, eps),
-                    rand_range(-eps, eps),
-                    rand_range(-eps, eps));
+                    rand_range(-reps, reps),
+                    rand_range(-reps, reps),
+                    rand_range(-reps, reps));
+            }
             F_r += fac * dx;
         }
     }
@@ -107,10 +110,17 @@ void layer<_coord_type>::apply_displacement(vertex_type *v, float_type dt)
 
 
 template <typename _coord_type>
-void layer<_coord_type>::layout(float_type dt)
+_coord_type layer<_coord_type>::layout(float_type dt)
 {
+    _coord_type max_ddx = 0;
+    size_t n_vs = vs.size();
+
     // move vertices with verlet integration on this layer
-    for (auto v : vs) apply_displacement(v, dt);
+    // for (auto v : vs) apply_displacement(v, dt);
+#pragma omp parallel for
+    for (size_t i = 0; i < n_vs; i++) {
+        apply_displacement(vs[i], dt);
+    }
 
 #ifndef REPULSION_BRUTE_FORCE
     // construct spatial octree
@@ -125,7 +135,6 @@ void layer<_coord_type>::layout(float_type dt)
 #endif
 
     // calculate force/acceleration with Lagrange Dynamics
-    size_t n_vs = vs.size();
 #pragma omp parallel for
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
@@ -146,27 +155,33 @@ void layer<_coord_type>::layout(float_type dt)
 
         // net force on v
         v->ddx_ = F_r + F_p;
+        max_ddx = std::max(max_ddx, v->ddx_.mod());
     }
 
 #ifndef REPULSION_BRUTE_FORCE
     t->recycle();
 #endif
 
-    for (auto v : vs) {
-        update_velocity(v, dt);
+#pragma omp parallel for
+    for (size_t i = 0; i < n_vs; i++) {
+        this->update_velocity(vs[i], dt);
     }
+
+    return max_ddx;
 }
 
 
 template <typename _coord_type>
-void finest_layer<_coord_type>::layout(float_type dt)
+_coord_type finest_layer<_coord_type>::layout(float_type dt)
 {
+    _coord_type max_ddx = 0;
+
     // 
     // [Take centroid vertices of spline edges into consideration] We need to stuff
     // all vertices (including real vertices and virtual centroid vertices of spline
-    // edges into one unique vertex array, thus the following vertex layout algorithm
-    // will operate on all kinds of vertices regardless of whether the vertex is a
-    // real styled vertex or edge centroid vertex
+    // edges) into one unique vertex array, thus the following vertex layout
+    // algorithm will operate on all kinds of vertices regardless of whether the
+    // vertex is a real styled vertex or edge centroid vertex.
     // 
     std::vector<vertex_type *> vs = this->vs;
     for (auto v : this->vs) {
@@ -179,9 +194,14 @@ void finest_layer<_coord_type>::layout(float_type dt)
             }
         }
     }
-
+    
     // move vertices with verlet integration on this layer
-    for (auto v : vs) this->apply_displacement(v, dt);
+    // for (auto v : vs) this->apply_displacement(v, dt);
+    size_t n_vs = vs.size();
+#pragma omp parallel for
+    for (size_t i = 0; i < n_vs; i++) {
+        this->apply_displacement(vs[i], dt);
+    }
 
 #ifndef REPULSION_BRUTE_FORCE
     // construct spatial octree
@@ -196,7 +216,6 @@ void finest_layer<_coord_type>::layout(float_type dt)
 #endif
 
     // calculate force/acceleration with Lagrange Dynamics
-    size_t n_vs = vs.size();
 #pragma omp parallel for
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
@@ -223,14 +242,19 @@ void finest_layer<_coord_type>::layout(float_type dt)
 
         // net force on v
         v->ddx_ = F_r + F_p;
+        max_ddx = std::max(max_ddx, v->ddx_.mod());
     }
+
 #ifndef REPULSION_BRUTE_FORCE
     t->recycle();
 #endif
-    
-    for (auto v : vs) {
-        this->update_velocity(v, dt);
+
+#pragma omp parallel for
+    for (size_t i = 0; i < n_vs; i++) {
+        this->update_velocity(vs[i], dt);
     }
+
+    return max_ddx;
 }
 
 
