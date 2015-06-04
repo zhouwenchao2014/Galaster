@@ -127,7 +127,7 @@ public:
     // Apply numerical methods on the Lagrange Dynamics formed by the spring system
     // defined by this graph.
     // 
-    virtual void layout(float_type dt);
+    virtual _coord_type layout(float_type dt);
     vector3d_type repulsion_force(vertex_type *v, const std::vector<vertex_type *> &vs);
     vector3d_type spring_force(vertex_type *v1, vertex_type *v2, edge_type *e);
     void update_velocity(vertex_type *v, float_type dt);
@@ -272,7 +272,7 @@ public:
         : layer<_coord_type>(f0, K, eps, damping, dilation) {
     }
 
-    virtual void layout(float_type dt);
+    virtual _coord_type layout(float_type dt);
 };
 
 

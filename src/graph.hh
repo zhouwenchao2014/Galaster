@@ -3,13 +3,13 @@
 
 
 #include "layer.hh"
-#include <mutex>
+#include "rwlock.hh"
 
 
 class graph_base {
 public:
     virtual ~graph_base() {}
-    virtual void layout(double dt) = 0;
+    virtual double layout(double dt) = 0;
     virtual void render(void) = 0;
     virtual void randomize(void) = 0;
     virtual void bounding_box_gl(
@@ -46,7 +46,7 @@ public:
 
     ~graph(void) {
         // remove all vertices (and edges) in this graph before disposing all layers
-        std::lock_guard<std::mutex> l(lock);
+        write_lock_guard l(lock);
         auto vs = g->vs;
         for (auto v : vs) {
             g->remove_vertex(v);
@@ -60,30 +60,32 @@ public:
     // 
 
     void add_vertex(vertex_type *v) {
-        std::lock_guard<std::mutex> l(lock);
+        write_lock_guard l(lock);
         g->add_vertex(v);
     }
     void remove_vertex(vertex_type *v) {
-        std::lock_guard<std::mutex> l(lock);
+        write_lock_guard l(lock);
         g->remove_vertex(v); 
     }
     edge_type *add_edge(edge_type *e) {
-        std::lock_guard<std::mutex> l(lock);
+        write_lock_guard l(lock);
         return g->add_edge(e);
     }
     void remove_edge(edge_type *e) {
-        std::lock_guard<std::mutex> l(lock);
+        write_lock_guard l(lock);
         g->remove_edge(e);
     }
 
     std::vector<vertex_type *> &vertex_list(void) { return g->vs; }
 
-    virtual void layout(double dt)
+    virtual double layout(double dt)
     {
-        std::lock_guard<std::mutex> l(lock);
+        read_lock_guard l(lock);
+        double max_ddx = 0;
         for (auto i = layers.rbegin(); i != layers.rend(); ++i) {
-            (*i)->layout((float_type) dt);
+            max_ddx = (*i)->layout((float_type) dt);
         }
+        return max_ddx;
     }
 
     virtual void render(void);
@@ -94,6 +96,7 @@ public:
     // 
     virtual void randomize(void)
     {
+        write_lock_guard l(lock);
         for (auto v : g->vs) {
             float_type r = 5;
             v->x = vector3d_type(
@@ -123,7 +126,7 @@ public:
         float_type &y_min, float_type &y_max,
         float_type &z_min, float_type &z_max)
     {
-        std::lock_guard<std::mutex> l(lock);
+        write_lock_guard l(lock);
         _coord_type xmin = -10, xmax = 10;
         _coord_type ymin = -10, ymax = 10;
         _coord_type zmin = -10, zmax = 10;
@@ -161,7 +164,7 @@ public:
     }
 
 
-    std::mutex lock;
+    rw_lock lock;
     std::vector<layer_type *> layers;
     layer_type *g = nullptr;
 };
