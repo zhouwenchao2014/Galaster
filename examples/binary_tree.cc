@@ -1,6 +1,7 @@
 #include "galaster.hh"
 #include <unistd.h>
 #include <thread>
+#include <mutex>
 
 
 typedef float _float_type;
