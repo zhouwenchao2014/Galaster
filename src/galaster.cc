@@ -96,30 +96,16 @@ void galaster_key_callback(GLFWwindow* window, int key, int, int action, int)
     else if (key == 'Q' and action == 0) {
         glfwSetWindowShouldClose(window, true);
     }
-    else if (key == 'F' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_wayin();
-    }
-    else if (key == 'B' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_wayout();
-    }
-    else if (key == 'W' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_forward();
-    }
-    else if (key == 'S' and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_backward();
-    }
-    else if (key == 262 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_right();
-    }
-    else if (key == 263 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_left();
-    }
-    else if (key == 264 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_down();
-    }
-    else if (key == 265 and (action == GLFW_PRESS or action == GLFW_REPEAT)) {
-        camera_view.on_up();
-    }
+#define KEYACTION(k) else if (key == k and (action == GLFW_PRESS or action == GLFW_REPEAT))
+    KEYACTION('F') camera_view.on_wayin();
+    KEYACTION('B') camera_view.on_wayout();
+    KEYACTION('W') camera_view.on_forward();
+    KEYACTION('S') camera_view.on_backward();
+    KEYACTION(262) camera_view.on_right();
+    KEYACTION(263) camera_view.on_left();
+    KEYACTION(264) camera_view.on_down();
+    KEYACTION(265) camera_view.on_up();
+#undef KEYACTION
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
@@ -144,7 +130,6 @@ void init_opengl(void)
     // Enable OpenGL features
     glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHT0);
-    // glEnable(GL_LIGHT1);
     glEnable(GL_LIGHTING);
     glEnable(GL_COLOR);
     glEnable(GL_COLOR_MATERIAL);
@@ -163,15 +148,11 @@ void init_opengl(void)
 
     // Light
     const GLfloat light_position0[4] = {-800.0f, 800.0f, 800.0f, 1.0f};
-    const GLfloat light_position1[4] = {-800.0f, -800.0f, -800.0f, 1.0f};
     const GLfloat light_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     const GLfloat light_ambient[4]  = {0.2f, 0.2f, 0.2f, 1.0f};
     glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
     glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, light_ambient);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
-    glLightfv(GL_LIGHT1, GL_AMBIENT_AND_DIFFUSE, light_ambient);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
     // Material
     GLfloat specReflection[] = { 0.5f, 0.5f, 0.5f, 1.0f };
