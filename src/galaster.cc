@@ -5,7 +5,9 @@
 #include "layout.hh"
 #include "verify.hh"
 #include "render.hh"
+#include <unistd.h>
 #include <thread>
+#include <omp.h>
 
 
 enum graph_mode {
@@ -239,11 +241,21 @@ int galaster_run(GLFWwindow *window, graph_base *graph, double dt)
     g_graph = graph;
 
     // launch a worker thread for layout the graph
+    int n_processors = omp_get_num_procs();
+    printf("Galaster: running on %d processors\n", n_processors);
     auto layout_thread = new std::thread([=]() {
+            omp_set_num_threads(n_processors - 1);
             double l_dt = dt;
+            double t, dt_total, t_old;
+            t_old = glfwGetTime() - 0.01;
             while (!glfwWindowShouldClose(window)) {
-                double max_ddx = graph->layout(l_dt);
-                l_dt = std::max(std::min(log(max_ddx), dt * 2), dt);
+                do {
+                    double max_ddx = graph->layout(l_dt);
+                    l_dt = std::max(std::min(log(max_ddx), dt * 2), dt);
+                    t = glfwGetTime();
+                    dt_total = t - t_old;
+                } while (dt_total < 0.02);
+                usleep(1000);
             }
         });
 
