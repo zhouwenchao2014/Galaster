@@ -4,7 +4,11 @@
 
 #if defined(__SSE__) || defined(_M_IX86_FP)
 #define SSE_INTRINSINC
+#ifdef __SSE4_1__
 #include <smmintrin.h>
+#else
+#include <xmmintrin.h>
+#endif
 #include <type_traits>
 #endif
 #include <cmath>
@@ -191,6 +195,7 @@ public:
     }
 
     float rmod(void) const {
+#ifdef __SSE4_1__
         float ret;
         __m128 t = v;
         t = _mm_mul_ps(t, t);
@@ -199,6 +204,9 @@ public:
         t = _mm_rsqrt_ss(t);
         _mm_store_ss(&ret, t);
         return ret;
+#else
+        return 1 / mod();
+#endif
     }
 
     vector3d<float> normalized() const {
