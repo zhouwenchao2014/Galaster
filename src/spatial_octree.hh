@@ -133,23 +133,25 @@ public:
     }
 
 
-    vector3d_type repulsion_force(const vertex_type *v2, float_type f0, float_type eps) const
+    vector3d_type repulsion_force(const vertex_type *v2, float_type f0, float_type reps) const
     {
         if (v == v2) return vector3d_type::zero;
 
         vector3d_type cc = centroid();
         auto dx = v2->x - cc;
-        auto dd = dx.mod();
+        auto rdd = dx.rmod();
         float_type l = vector3d_type(
-            x_max - x_min, y_max - y_min, z_max - z_min).mod();
-        if (v or dd > l * 2) {
-            auto denom = eps + dd;
-            auto fac = f0 / (denom * denom * denom);
-            if (dd < eps)
+            x_max - x_min, y_max - y_min, z_max - z_min).rmod();
+        if (v or rdd < l) {
+            auto denom = rdd;
+            auto fac = f0 * (denom * denom * denom);
+            if (rdd > 2 * reps) {
+                fac = 1;
                 dx = vector3d_type(
-                    rand_range(-eps, eps),
-                    rand_range(-eps, eps),
-                    rand_range(-eps, eps));
+                    rand_range(-reps, reps),
+                    rand_range(-reps, reps),
+                    rand_range(-reps, reps));
+            }
             return (n_vertices * fac) * dx;
         }
         else {
@@ -157,7 +159,7 @@ public:
             for (int i = 0; i < 8; i++) {
                 if (subspaces[i]) 
                     F_r += subspaces[i]->repulsion_force(
-                        v2, f0, eps);
+                        v2, f0, reps);
             }
             return F_r;
         }
