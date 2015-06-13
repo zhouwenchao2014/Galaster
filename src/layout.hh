@@ -6,7 +6,8 @@
 #include "spatial_octree.hh"
 
 
-#define REPULSION_BRUTE_FORCE
+// #define REPULSION_BRUTE_FORCE
+#define REPULSION_OCTREE_THRESHOLD 2000
 
 
 // 
@@ -139,7 +140,9 @@ _coord_type layer<_coord_type>::layout(float_type dt)
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
 #ifndef REPULSION_BRUTE_FORCE
-        vector3d_type F_r = t->repulsion_force(v, f0, eps);
+        vector3d_type F_r = (n_vs > REPULSION_OCTREE_THRESHOLD? 
+            t->repulsion_force(v, f0, 1 / sqrt(eps)):
+            repulsion_force(v, vs));
 #else
         vector3d_type F_r = repulsion_force(v, vs);
 #endif
@@ -220,7 +223,9 @@ _coord_type finest_layer<_coord_type>::layout(float_type dt)
     for (size_t i = 0; i < n_vs; i++) {
         auto v = vs[i];
 #ifndef REPULSION_BRUTE_FORCE
-        vector3d_type F_r = t->repulsion_force(v, this->f0, this->eps);
+        vector3d_type F_r = (n_vs > REPULSION_OCTREE_THRESHOLD?
+            t->repulsion_force(v, this->f0, 1 / sqrt(this->eps)):
+            this->repulsion_force(v, vs));
 #else
         vector3d_type F_r = this->repulsion_force(v, vs);
 #endif
