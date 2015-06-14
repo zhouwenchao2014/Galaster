@@ -21,6 +21,11 @@ enum class stroke_type {
     none
 };
 
+enum class renderer {
+    solid, particle
+};
+
+
 class color_type {
 public:
     color_type(uint8_t r, uint8_t g, uint8_t b)

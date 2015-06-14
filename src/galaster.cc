@@ -32,6 +32,7 @@ struct camera_view_type
     double zoom_factor = 1;
     double d_zoom_factor = 0;
     double step = 0.1;
+    renderer method = renderer::solid;
 
     void on_wayin(void) {
         zoom_factor -= zoom * step;
@@ -78,6 +79,10 @@ struct camera_view_type
         phi += d_phi;
         zoom_factor += d_zoom_factor;
     }
+
+    void switch_renderer(void) {
+        method = (method == renderer::solid? renderer::particle: renderer::solid);
+    }
     
 } camera_view;
 
@@ -108,6 +113,9 @@ void galaster_key_callback(GLFWwindow* window, int key, int, int action, int)
     KEYACTION(264) camera_view.on_down();
     KEYACTION(265) camera_view.on_up();
 #undef KEYACTION
+    else if (key == 'M' and action == 0) {
+        camera_view.switch_renderer();
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
@@ -139,7 +147,6 @@ void init_opengl(void)
     glEnable(GL_MAP1_VERTEX_3);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_LINE_STIPPLE);
-    glEnable(GL_DEPTH_TEST);
 
     // Use Gouraud (smooth) shading and color material
     glShadeModel(GL_SMOOTH);
@@ -185,7 +192,7 @@ void draw_scene(GLFWwindow* , graph_base *graph)
         0, 1, 0);
     glRotatef(camera_view.theta, 0, 1, 0);
     glRotatef(camera_view.phi, 1, 0, 0);
-    graph->render();
+    graph->render(camera_view.method);
 }
 
 

@@ -10,7 +10,7 @@ class graph_base {
 public:
     virtual ~graph_base() {}
     virtual double layout(double dt) = 0;
-    virtual void render(void) = 0;
+    virtual void render(renderer method) = 0;
     virtual void randomize(void) = 0;
     virtual void bounding_box_gl(
         GLfloat &x_min, GLfloat &x_max,
@@ -88,7 +88,9 @@ public:
         return max_ddx;
     }
 
-    virtual void render(void);
+    virtual void render(renderer method);
+    virtual void render_solid(GLfloat *modelview);
+    virtual void render_particle(GLfloat *modelview);
 
     // 
     // Randomize coordinates of vertices so that we can break the steady state and
