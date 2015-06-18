@@ -21,6 +21,6 @@
    - RPC based API and bindings for various programming languages
    - +Spline edges and arrows+
    - +Fast repulsion force calculation algorithm+
-   - Rendering text labels
+   - +Rendering text labels+
    - +Smarter auto camera+
    - +Proper rendering options to make edges look consistent in various view angles+
