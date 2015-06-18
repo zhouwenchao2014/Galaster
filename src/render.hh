@@ -28,6 +28,10 @@ void glutSolidDodecahedron(void);
 void glutSolidIcosahedron(void);
 void glutSolidRhombicDodecahedron(void);
 
+void render_glyph_gl(
+    const std::string &fontpath, const wchar_t *ch, size_t size, 
+    GLfloat cx, GLfloat cy, GLfloat cz);
+
 
 struct _vertexarrayelement {
     GLfloat s, t;
@@ -118,7 +122,6 @@ void graph<_coord_type>::render_particle(GLfloat *modelview)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, particle_tex_id);
 
     // precalculate for billboarding
     GLfloat qlx = (-PARTICLE_SIZE / 2) * (modelview[0] + modelview[1]);
@@ -138,9 +141,10 @@ void graph<_coord_type>::render_particle(GLfloat *modelview)
     glInterleavedArrays(GL_T2F_C4UB_V3F, 0, vertex_arr);
     _vertexarrayelement *vptr = vertex_arr;
     for (size_t i = 0; i < n_vertices; i++) {
-        GLfloat x, y, z;
         auto v = static_cast<vertex_styled<_coord_type> *>(g->vs[i]);
-        v->x.coord(x, y, z);
+        _coord_type _x, _y, _z;
+        v->x.coord(_x, _y, _z);
+        GLfloat x = _x, y = _y, z = _z;
             
         GLuint rgba = 0xAAAAAAFF;
         ((GLubyte *) &rgba)[0] = (GLubyte) (v->color.redd() * 255);
@@ -196,6 +200,23 @@ void graph<_coord_type>::render_particle(GLfloat *modelview)
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
+
+    for (auto v : g->vs) {
+        glLoadMatrixf(modelview);
+        auto vstyled = static_cast<vertex_styled<_coord_type> *>(v);
+        if (!vstyled->label.empty()) {
+            _coord_type x, y, z;
+            glColor3d(
+                vstyled->font_color.redd(), 
+                vstyled->font_color.greend(), 
+                vstyled->font_color.blued());
+            v->x.coord(x, y, z);
+            render_glyph_gl(
+                vstyled->font_family, vstyled->label.c_str(), vstyled->font_size, 
+                x + vstyled->size, y, z);
+        }
+    }
+
 }
 
 
@@ -254,6 +275,7 @@ void vertex_styled<_coord_type>::render(void) const
     if (!visible) return;
     _coord_type x, y, z;
     this->x.coord(x, y, z);
+
     glTranslatef(x, y, z);
     glColor3d(color.redd(), color.greend(), color.blued());
     switch (shape) {
@@ -297,6 +319,11 @@ void vertex_styled<_coord_type>::render(void) const
             fprintf(stderr, "unknown shape type specified: %d\n", (int) shape);
             break;
     }
+
+    if (!label.empty()) {
+        glColor3d(font_color.redd(), font_color.greend(), font_color.blued());
+        render_glyph_gl(font_family, label.c_str(), font_size, size, 0, 0);
+    }
 }
 
 
@@ -325,6 +352,7 @@ void edge_styled<_coord_type>::render(void) const
 
     vector3d_type arrow_dir(vector3d_type::zero);
     _coord_type ax = 0, ay = 0, az = 0;
+    _coord_type label_x, label_y, label_z;
 
     if (!spline) {
         glDisable(GL_LIGHTING);
@@ -342,6 +370,11 @@ void edge_styled<_coord_type>::render(void) const
             arrow_dir = dvertex.normalized();
             (this->a->x + dvertex * (_coord_type) arrow_position).coord(ax, ay, az);
         }
+
+        // calculate text label position
+        label_x = 0.5 * (x0 + x1);
+        label_y = 0.5 * (y0 + y1);
+        label_z = 0.5 * (z0 + z1);
     }
     else if (vspline) {
         _coord_type x0,y0,z0, x1,y1,z1, x2,y2,z2;
@@ -369,6 +402,14 @@ void edge_styled<_coord_type>::render(void) const
                 ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], arrow_position + 0.1, x1, y1, z1);
                 ax = (_coord_type) axf, ay = (_coord_type) ayf, az = (_coord_type) azf;
                 arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
+            }
+
+            if (!label.empty()) {
+                GLfloat x, y, z;
+                ownglEvalCoord1f(3, 3, &ctrl_pts[0][0], 0.5, x, y, z);
+                label_x = x;
+                label_y = y;
+                label_z = z;
             }
         }
         else {
@@ -402,10 +443,25 @@ void edge_styled<_coord_type>::render(void) const
                 ax = (_coord_type) axf, ay = (_coord_type) ayf, az = (_coord_type) azf;
                 arrow_dir = vector3d_type(x1 - ax, y1 - ay, z1 - az).normalized();
             }
+
+            // calculate text label position
+            if (!label.empty()) {
+                GLfloat x, y, z;
+                ownglEvalCoord1f(3, 4, &ctrl_pts[0][0], 0.5, x, y, z);
+                label_x = x;
+                label_y = y;
+                label_z = z;
+            }
         }
     }
 
+    glPushMatrix();
     render_arrow(arrow_dir, ax, ay, az);
+    glPopMatrix();
+    if (!label.empty()) {
+        glColor3d(font_color.redd(), font_color.greend(), font_color.blued());
+        render_glyph_gl(font_family, label.c_str(), font_size, label_x, label_y, label_z);
+    }
 }
 
 
