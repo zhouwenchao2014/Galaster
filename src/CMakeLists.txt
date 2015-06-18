@@ -1,6 +1,10 @@
+include_directories(${FREETYPE2_INCLUDE_DIRS})
+
 add_library(galaster
   galaster.cc
   geometry.cc
+  glyph.cc
+  font.cc
   bezier.cc
   vec3d.cc
   prop.cc
@@ -25,4 +29,6 @@ target_link_libraries(galaster
   ${GALASTER_LIBRARIES}
   ${GLFW_LIBRARIES}
   ${OPENGL_LIBRARIES}
+  ${FREETYPE2_LIBRARIES}
+  /usr/local/lib/libiomp5.dylib
 )

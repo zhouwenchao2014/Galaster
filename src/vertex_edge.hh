@@ -93,10 +93,10 @@ public:
     color_type color = color_type::blue;
     double size = 1.0;
     int shape_detail = 10;
-    std::string label = "";
+    std::wstring label = L"";
     std::string font_family = "Helvetica";
     color_type font_color = color_type::white;
-    int font_size = 12;
+    int font_size = 16;
     bool visible = true;
 };
 
@@ -176,10 +176,10 @@ public:
     double arrow_radius = 1.0;
     double arrow_length = 1.0;
     color_type color = color_type::darkgray;
-    std::string label = "";
+    std::wstring label = L"";
     std::string font_family = "Helvetica";
     color_type font_color = color_type::white;
-    int font_size = 12;
+    int font_size = 16;
     stroke_type stroke = stroke_type::solid;
     double width = 1.0;
 
