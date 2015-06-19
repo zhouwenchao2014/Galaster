@@ -356,12 +356,25 @@ void edge_styled<_coord_type>::render(void) const
 
     if (!spline) {
         glDisable(GL_LIGHTING);
-        glBegin(GL_LINES);
-        // glColor4d(.0, 1.0, 0.6, 0.3);
-        glVertex3f(x0, y0, z0);
-        // glColor4d(color.redd(), color.greend(), color.blued(), 0.3);
-        glVertex3f(x1, y1, z1);
-        glEnd();
+        if (blendcolor) {
+            auto a = static_cast<vertex_styled<_coord_type>* >(this->a);
+            auto b = static_cast<vertex_styled<_coord_type>* >(this->b);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBegin(GL_LINES);
+            glColor4d(a->color.redd(), a->color.greend(), a->color.blued(), 0.3);
+            glVertex3f(x0, y0, z0);
+            glColor4d(b->color.redd(), b->color.greend(), b->color.blued(), 0.3);
+            glVertex3f(x1, y1, z1);
+            glEnd();
+            glDisable(GL_BLEND);
+        }
+        else {
+            glBegin(GL_LINES);
+            glVertex3f(x0, y0, z0);
+            glVertex3f(x1, y1, z1);
+            glEnd();
+        }
         glEnable(GL_LIGHTING);
 
         // calculate arrow position and direction

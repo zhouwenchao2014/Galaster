@@ -146,7 +146,7 @@ public:
         : edge<_coord_type>(a, b, false, false),
           visible(true), 
           arrow(false), arrow_reverse(false),
-          spline(false), showstrain(false) {
+          spline(false), showstrain(false), blendcolor(false) {
     }
 
     virtual ~edge_styled(void) {
@@ -172,6 +172,7 @@ public:
     bool arrow_reverse: 1;
     bool spline: 1;
     bool showstrain: 1;
+    bool blendcolor: 1;
     double arrow_position = 0.5;
     double arrow_radius = 1.0;
     double arrow_length = 1.0;
