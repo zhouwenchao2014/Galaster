@@ -47,21 +47,28 @@ void render_glyph_gl(
         // load glyph as texture
         auto glyph = fc->glyph_of(fontpath, *ch, size);
         FT_Glyph gly = glyph.gly;
+        if (!gly) break;
         FT_Bitmap *bitmap = &((FT_BitmapGlyph) gly)->bitmap;
         glBindTexture(GL_TEXTURE_2D, glyph.tex);
 
         // draw this glyph
         static _vertexarrayelement vertex_arr[6];
         GLfloat font_scale = 0.25;
-        GLfloat w = bitmap->width * font_scale;
-        GLfloat h = bitmap->rows * font_scale;
+        FT_BBox box;
+        FT_Glyph_Get_CBox(gly, FT_GLYPH_BBOX_PIXELS, &box);
+        GLfloat xmin = xpos + box.xMin * font_scale;
+        GLfloat xmax = xpos + box.xMax * font_scale;
+        GLfloat ymin = box.yMin * font_scale;
+        GLfloat ymax = box.yMax * font_scale;
+
         glInterleavedArrays(GL_T2F_V3F, 0, vertex_arr);
-        qvertex(&vertex_arr[0], 0, 1, xpos, 0);
-        qvertex(&vertex_arr[1], 1, 1, xpos + w, 0);
-        qvertex(&vertex_arr[2], 1, 0, xpos + w, h);
-        qvertex(&vertex_arr[3], 0, 1, xpos, 0);
-        qvertex(&vertex_arr[4], 1, 0, xpos + w, h);
-        qvertex(&vertex_arr[5], 0, 0, xpos, h);
+        qvertex(&vertex_arr[0], 0, 1, xmin, ymin);
+        qvertex(&vertex_arr[1], 1, 1, xmax, ymin);
+        qvertex(&vertex_arr[2], 1, 0, xmax, ymax);
+        qvertex(&vertex_arr[3], 0, 1, xmin, ymin);
+        qvertex(&vertex_arr[4], 1, 0, xmax, ymax);
+        qvertex(&vertex_arr[5], 0, 0, xmin, ymax);
+
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);

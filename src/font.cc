@@ -17,7 +17,7 @@ fontcache::glyph fontcache::glyphcache::get_glyph(int size) {
     FT_Glyph g;
     if (it == c_glyph.end()) {
         // cache miss, we have to load bitmap of this size
-        printf("loading glyph: %c, %d\n", (char) ch, size);
+        printf("loading glyph: %04x, %d\n", (int)ch, size);
         g = glyph_cache->load_glyph(ch, size);
         if (g != nullptr && 
             (FT_Glyph_To_Bitmap(&g, FT_RENDER_MODE_NORMAL, NULL, false) 
