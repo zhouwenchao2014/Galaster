@@ -45,10 +45,10 @@ void render_glyph_gl(
     GLfloat xpos = 0;
     for ( ; *ch != 0; ch++) {
         // load glyph as texture
-        auto glyphpair = fc->glyph_of(fontpath, *ch, size);
-        FT_Glyph glyph = glyphpair.first;
-        FT_Bitmap *bitmap = &((FT_BitmapGlyph) glyph)->bitmap;
-        glBindTexture(GL_TEXTURE_2D, glyphpair.second);
+        auto glyph = fc->glyph_of(fontpath, *ch, size);
+        FT_Glyph gly = glyph.gly;
+        FT_Bitmap *bitmap = &((FT_BitmapGlyph) gly)->bitmap;
+        glBindTexture(GL_TEXTURE_2D, glyph.tex);
 
         // draw this glyph
         static _vertexarrayelement vertex_arr[6];
@@ -65,7 +65,7 @@ void render_glyph_gl(
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        xpos += (glyph->advance.x >> 16) * font_scale;
+        xpos += (gly->advance.x >> 16) * font_scale;
     }
 
     glPopMatrix();
