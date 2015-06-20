@@ -20,17 +20,25 @@ class fontcache
 {
 public:
     fontcache();
-
     struct facecache;
+
+    // cached freetype glyph and pre-rendered opengl texture
+    struct glyph {
+        glyph(FT_Glyph gly = nullptr, unsigned tex = 0)
+            : gly(gly), tex(tex) { }
+        FT_Glyph gly;
+        unsigned tex;
+    };
+
     struct glyphcache {
         glyphcache(facecache *glyph_cache, wchar_t ch)
             : glyph_cache(glyph_cache), ch(ch) {
         }
-        std::pair<FT_Glyph, unsigned> get_glyph(int size);
+        glyph get_glyph(int size);
 
         facecache *glyph_cache;
         wchar_t ch;
-        std::map<size_t, std::pair<FT_Glyph, unsigned> > c_glyph;
+        std::map<size_t, glyph> c_glyph;
     };
 
     struct facecache {
@@ -45,7 +53,7 @@ public:
         std::map<wchar_t, glyphcache*> c_face;
     };
 
-    std::pair<FT_Glyph, unsigned> glyph_of(const std::string &fontpath, wchar_t ch, size_t size);
+    glyph glyph_of(const std::string &fontpath, wchar_t ch, size_t size);
     facecache *get_face(const std::string &fontpath);
 
 protected:

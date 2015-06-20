@@ -12,7 +12,7 @@ fontcache::fontcache(void)
 }
 
 
-std::pair<FT_Glyph, unsigned> fontcache::glyphcache::get_glyph(int size) {
+fontcache::glyph fontcache::glyphcache::get_glyph(int size) {
     auto it = c_glyph.find(size);
     FT_Glyph g;
     if (it == c_glyph.end()) {
@@ -32,22 +32,21 @@ std::pair<FT_Glyph, unsigned> fontcache::glyphcache::get_glyph(int size) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
             FT_Bitmap *bitmap = &((FT_BitmapGlyph) g)->bitmap;
-            // if (!bitmap) break;
+            if (!bitmap) return glyph();
             glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, bitmap->width, bitmap->rows,
                 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bitmap->buffer);
 
-            auto ret = std::make_pair(g, glyph_tex_id);
+            auto ret = glyph(g, glyph_tex_id);
             c_glyph[size] = ret;
             return ret;
         }
         else {
-            return std::make_pair(nullptr, 0);
+            return glyph();
         }
     }
     else {
         return it->second;
     }
-    // return g;
 }
 
 
@@ -106,7 +105,7 @@ fontcache::facecache *fontcache::get_face(const std::string &fontpath)
 }
 
 
-std::pair<FT_Glyph, unsigned> fontcache::glyph_of(const std::string &fontpath, wchar_t ch, size_t size)
+fontcache::glyph fontcache::glyph_of(const std::string &fontpath, wchar_t ch, size_t size)
 {
     facecache *fc = get_face(fontpath);
     if (fc) {
@@ -115,5 +114,5 @@ std::pair<FT_Glyph, unsigned> fontcache::glyph_of(const std::string &fontpath, w
             return gc->get_glyph(size);
         }
     }
-    return std::make_pair(nullptr, 0);
+    return glyph();
 }
