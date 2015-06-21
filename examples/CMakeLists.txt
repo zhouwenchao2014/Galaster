@@ -13,6 +13,7 @@ add_example(random random.cc)
 add_example(randspline randspline.cc)
 add_example(splineorama2 splineorama2.cc)
 add_example(splineorama splineorama.cc)
+add_example(randflower randflower.cc)
 add_example(label label.cc)
 add_example(crawler crawler.cc)
 
