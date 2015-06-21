@@ -48,7 +48,6 @@ void render_glyph_gl(
         auto glyph = fc->glyph_of(fontpath, *ch, size);
         FT_Glyph gly = glyph.gly;
         if (!gly) break;
-        FT_Bitmap *bitmap = &((FT_BitmapGlyph) gly)->bitmap;
         glBindTexture(GL_TEXTURE_2D, glyph.tex);
 
         // draw this glyph

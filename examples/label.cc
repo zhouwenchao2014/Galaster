@@ -14,6 +14,11 @@ graph_type *the_graph;
 vertex_styled<_float_type> *centroid;
 int n_vertex = 10;
 
+#ifndef __APPLE__
+#define FONT_PATH "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
+#else
+#define FONT_PATH "/Library/Fonts/Courier New.ttf"
+#endif
 
 graph_type *generate_splineorama_graph(int n_layers)
 {
@@ -28,7 +33,7 @@ graph_type *generate_splineorama_graph(int n_layers)
     centroid->shape = shape_type::sphere;
     centroid->color = color_type(20,20,20);
     centroid->shape_detail = 50;
-    centroid->font_family = "/Library/Fonts/华文细黑.ttf";
+    centroid->font_family = FONT_PATH;
     centroid->font_size = 30;
     centroid->label = L"♂";
     centroid->size = 15;
@@ -47,9 +52,9 @@ graph_type *generate_splineorama_graph(int n_layers)
             rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
         v->size = 7;
         v->shape_detail = 30;
-        v->font_family = "/Library/Fonts/华文细黑.ttf";
+        v->font_family = FONT_PATH;
         v->font_size = 20;
-        v->label = L"奥";
+        v->label = L"Galaster";
         graph->add_vertex(v);
         vs.push_back(v);
 
@@ -69,32 +74,9 @@ graph_type *generate_splineorama_graph(int n_layers)
             rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
         v->size = 7;
         v->shape_detail = 30;
-        v->font_family = "/Library/Fonts/华文细黑.ttf";
+        v->font_family = FONT_PATH;
         v->font_size = 20;
-        v->label = L"义";
-        graph->add_vertex(v);
-        vs.push_back(v);
-
-        auto e = new edge_styled<_float_type>(centroid, v);
-        e->set_spline();
-        e->color = color_type(0.2, 0.2, 0.2);
-        graph->add_edge(e);
-    }
-
-
-    {
-        auto v = new vertex_styled<_float_type>(
-            rand_range(-r, r),
-            rand_range(-r, r),
-            rand_range(-r, r));
-        v->shape = shape_type::sphere;
-        v->color = color_type(
-            rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
-        v->size = 7;
-        v->shape_detail = 30;
-        v->font_family = "/Library/Fonts/华文细黑.ttf";
-        v->font_size = 20;
-        v->label = L"很";
+        v->label = L"Graph";
         graph->add_vertex(v);
         vs.push_back(v);
 
@@ -115,9 +97,32 @@ graph_type *generate_splineorama_graph(int n_layers)
             rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
         v->size = 7;
         v->shape_detail = 30;
-        v->font_family = "/Library/Fonts/华文细黑.ttf";
+        v->font_family = FONT_PATH;
         v->font_size = 20;
-        v->label = L"爽";
+        v->label = L"Dynamic";
+        graph->add_vertex(v);
+        vs.push_back(v);
+
+        auto e = new edge_styled<_float_type>(centroid, v);
+        e->set_spline();
+        e->color = color_type(0.2, 0.2, 0.2);
+        graph->add_edge(e);
+    }
+
+
+    {
+        auto v = new vertex_styled<_float_type>(
+            rand_range(-r, r),
+            rand_range(-r, r),
+            rand_range(-r, r));
+        v->shape = shape_type::sphere;
+        v->color = color_type(
+            rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
+        v->size = 7;
+        v->shape_detail = 30;
+        v->font_family = FONT_PATH;
+        v->font_size = 20;
+        v->label = L"Visualization";
         graph->add_vertex(v);
         vs.push_back(v);
 
@@ -137,9 +142,9 @@ graph_type *generate_splineorama_graph(int n_layers)
             rand_range(0,0.5), rand_range(0,0.5), rand_range(0,0.5));
         v->size = 7;
         v->shape_detail = 30;
-        v->font_family = "/Library/Fonts/Baoli.ttc";
+        v->font_family = FONT_PATH;
         v->font_size = 20;
-        v->label = L"fuck♂you";
+        v->label = L"System";
         graph->add_vertex(v);
         vs.push_back(v);
 
