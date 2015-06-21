@@ -39,10 +39,14 @@ struct _vertexarrayelement {
     GLfloat x, y, z;
 };
 
-// Texture object IDs
-static GLuint particle_tex_id;
+struct _edgearrayelement {
+    GLuint  rgba;
+    GLfloat x, y, z;
+};
 
-#define P_TEX_WIDTH  16    // Particle texture dimensions
+static GLuint particle_tex_id;  // Texture object IDs
+#define PARTICLE_SIZE 2.5f
+#define P_TEX_WIDTH  16         // Particle texture dimensions
 #define P_TEX_HEIGHT 16
 
 const unsigned char particle_texture[ P_TEX_WIDTH * P_TEX_HEIGHT ] = {
@@ -71,6 +75,7 @@ const unsigned char particle_texture[ P_TEX_WIDTH * P_TEX_HEIGHT ] = {
 #define GL_SEPARATE_SPECULAR_COLOR_EXT    0x81FA
 #endif // GL_EXT_separate_specular_color
 
+
 inline void init_particle_system(void)
 {
     glGenTextures(1, &particle_tex_id);
@@ -91,54 +96,96 @@ inline void init_particle_system(void)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
+
 // 
-// Render this graph using particle system, this renderer is much faster than solid
-// rendering system and performs well when visualizing large graphs (N > 5000)
+// Render edges with vertex arrays. Note that spline edges are rendered straight and
+// line width/stipple settings are ignored
 // 
 template <typename _coord_type>
-void graph<_coord_type>::render_particle(GLfloat *modelview)
+void graph<_coord_type>::render_particle_edges(void)
 {
-    glDisable(GL_DEPTH_TEST);
+    static int edgearray_len = 100;
+    static _edgearrayelement *edge_arr = (_edgearrayelement *) malloc(
+        edgearray_len * sizeof(_edgearrayelement));
+
+    int i_edge_arr = 0;
     for (auto v : g->vs) {
-        glLoadMatrixf(modelview);
         for (auto e : v->es) {
             if (e->a == v) {
-                glLoadMatrixf(modelview);
-                static_cast<edge_styled<_coord_type> *>(e)->render();
+                auto estyled = static_cast<edge_styled<_coord_type> *>(e);
+                _edgearrayelement *eptr = nullptr;
+                if (i_edge_arr < edgearray_len - 1) {
+                    eptr = &edge_arr[i_edge_arr];
+                }
+                else {
+                    edgearray_len *= 2;
+                    edge_arr = (_edgearrayelement *) realloc(
+                        edge_arr,
+                        edgearray_len * sizeof(_edgearrayelement));
+                    eptr = &edge_arr[i_edge_arr];
+                }
+                auto a = static_cast<vertex_styled<_coord_type>* >(estyled->a);
+                auto b = static_cast<vertex_styled<_coord_type>* >(estyled->b);
+                _coord_type x0, y0, z0, x1, y1, z1;
+                a->x.coord(x0, y0, z0);
+                b->x.coord(x1, y1, z1);
+                eptr[0].x = x0;
+                eptr[0].y = y0;
+                eptr[0].z = z0;
+                eptr[1].x = x1;
+                eptr[1].y = y1;
+                eptr[1].z = z1;
+                if (estyled->blendcolor) {
+                    eptr[0].rgba = a->color.c4u(0x55);
+                    eptr[1].rgba = b->color.c4u(0x55);
+                }
+                else {
+                    GLuint rgba = estyled->color.c4u();
+                    eptr[0].rgba = rgba;
+                    eptr[1].rgba = rgba;
+                }
+                i_edge_arr += 2;
             }
         }
     }
 
-#define PARTICLE_SIZE 5.0f
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glInterleavedArrays(GL_C4UB_V3F, 0, edge_arr);
+    glLineWidth(1);
+    glLineStipple(1, 0xFFFF);
+    glDrawArrays(GL_LINES, 0, i_edge_arr);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+}
+
+
+// 
+// Render vertices as particles with vertex arrays, vertex shape is ignored and all
+// vertices are rendered using the same texture
+// 
+template <typename _coord_type>
+void graph<_coord_type>::render_particle_vertices(GLfloat *modelview)
+{
     static int vertarray_len = 0;
     static _vertexarrayelement *vertex_arr = nullptr;
-    static bool particle_initialized = false;
-    if (!particle_initialized) {
-        particle_initialized = true;
-        init_particle_system();
-    }
-    glLoadMatrixf(modelview);
-    glDisable(GL_LIGHTING);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    glEnable(GL_TEXTURE_2D);
 
     // precalculate for billboarding
-    GLfloat qlx = (-PARTICLE_SIZE / 2) * (modelview[0] + modelview[1]);
-    GLfloat qly = (-PARTICLE_SIZE / 2) * (modelview[4] + modelview[5]);
-    GLfloat qlz = (-PARTICLE_SIZE / 2) * (modelview[8] + modelview[9]);
-    GLfloat qrx = (PARTICLE_SIZE / 2) * (modelview[0] - modelview[1]);
-    GLfloat qry = (PARTICLE_SIZE / 2) * (modelview[4] - modelview[5]);
-    GLfloat qrz = (PARTICLE_SIZE / 2) * (modelview[8] - modelview[9]);
+    GLfloat qlx = -PARTICLE_SIZE * (modelview[0] + modelview[1]);
+    GLfloat qly = -PARTICLE_SIZE * (modelview[4] + modelview[5]);
+    GLfloat qlz = -PARTICLE_SIZE * (modelview[8] + modelview[9]);
+    GLfloat qrx = PARTICLE_SIZE * (modelview[0] - modelview[1]);
+    GLfloat qry = PARTICLE_SIZE * (modelview[4] - modelview[5]);
+    GLfloat qrz = PARTICLE_SIZE * (modelview[8] - modelview[9]);
 
     // construct vertex array
     size_t n_vertices = g->vs.size();
     if (!vertex_arr or vertarray_len < n_vertices * 4) {
         vertarray_len = n_vertices * 4;
         delete vertex_arr;
-        vertex_arr = new _vertexarrayelement[vertarray_len];
+        vertex_arr = (_vertexarrayelement *)
+            malloc(vertarray_len * sizeof(_vertexarrayelement));
     }
-    glInterleavedArrays(GL_T2F_C4UB_V3F, 0, vertex_arr);
+
     _vertexarrayelement *vptr = vertex_arr;
     for (size_t i = 0; i < n_vertices; i++) {
         auto v = static_cast<vertex_styled<_coord_type> *>(g->vs[i]);
@@ -146,10 +193,7 @@ void graph<_coord_type>::render_particle(GLfloat *modelview)
         v->x.coord(_x, _y, _z);
         GLfloat x = _x, y = _y, z = _z;
             
-        GLuint rgba = 0xAAAAAAFF;
-        ((GLubyte *) &rgba)[0] = (GLubyte) (v->color.redd() * 255);
-        ((GLubyte *) &rgba)[1] = (GLubyte) (v->color.greend() * 255);
-        ((GLubyte *) &rgba)[2] = (GLubyte) (v->color.blued() * 255);
+        GLuint rgba = v->color.c4u();
         GLfloat vqlx = qlx * v->size;
         GLfloat vqly = qly * v->size;
         GLfloat vqlz = qlz * v->size;
@@ -194,13 +238,26 @@ void graph<_coord_type>::render_particle(GLfloat *modelview)
         vptr ++;
     }
 
+    glEnable(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glInterleavedArrays(GL_T2F_C4UB_V3F, 0, vertex_arr);
     glDrawArrays(GL_QUADS, 0, 4 * n_vertices);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
+}
 
+
+// 
+// Rendering vertex and edge labels, this might be the slowest part of the renderer,
+// so please don't add too much labels to your graph
+// 
+template <typename _coord_type>
+void graph<_coord_type>::render_particle_labels(GLfloat *modelview)
+{
+    // render vertex text labels
     for (auto v : g->vs) {
         glLoadMatrixf(modelview);
         auto vstyled = static_cast<vertex_styled<_coord_type> *>(v);
@@ -217,6 +274,55 @@ void graph<_coord_type>::render_particle(GLfloat *modelview)
         }
     }
 
+    // render edge text labels
+    for (auto v : g->vs) {
+        glLoadMatrixf(modelview);
+        for (auto e : v->es) {
+            if (e->a == v) {
+                auto estyled = static_cast<edge_styled<_coord_type> *>(e);
+                if (!estyled->label.empty()) {
+                    _coord_type x, y, z, x0, y0, z0, x1, y1, z1;
+                    auto a = static_cast<vertex_styled<_coord_type> *>(e->a);
+                    auto b = static_cast<vertex_styled<_coord_type> *>(e->b);
+                    a->x.coord(x0, y0, z0);
+                    b->x.coord(x1, y1, z1);
+                    x = 0.5 * (x0 + x1);
+                    y = 0.5 * (y0 + y1);
+                    z = 0.5 * (z0 + z1);
+                    glColor3d(
+                        estyled->font_color.redd(), 
+                        estyled->font_color.greend(), 
+                        estyled->font_color.blued());
+                    render_glyph_gl(
+                        estyled->font_family, estyled->label.c_str(), estyled->font_size, 
+                        x, y, z);
+                }
+            }
+        }
+    }
+}
+
+
+// 
+// Render this graph using particle system, this renderer is much faster than solid
+// rendering system and performs well when visualizing large graphs (N > 5000)
+// 
+template <typename _coord_type>
+void graph<_coord_type>::render_particle(GLfloat *modelview)
+{
+    static bool particle_initialized = false;
+    if (!particle_initialized) {
+        particle_initialized = true;
+        init_particle_system();
+    }
+    glLoadMatrixf(modelview);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+
+    render_particle_edges();
+    render_particle_vertices(modelview);
+    render_particle_labels(modelview);
 }
 
 
@@ -478,6 +584,7 @@ void edge_styled<_coord_type>::render(void) const
 }
 
 
+// Render arrows as solid cones
 template <typename _coord_type>
 void edge_styled<_coord_type>::render_arrow(
     const vector3d_type &arrow_dir, GLfloat ax, GLfloat ay, GLfloat az) const
