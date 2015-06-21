@@ -28,7 +28,7 @@ graph_type *generate_cube(int n_layers, int m, bool spline)
                 rand_range(-r, r));
         v->shape = shape_type::cube;
         v->size = 3;
-        v->color = color_type(0,50,255);
+        v->color = color_type(0,150,255);
         graph->add_vertex(v);
     }
 
@@ -62,7 +62,7 @@ int main(void)
     graph_type *graph = generate_cube(6, 10, false);
 
     GLFWwindow *window = galaster_init();
-    if (window) galaster_run(window, graph);
+    if (window) galaster_run(window, graph, 2.0);
     delete graph;
     return 0;
 }
