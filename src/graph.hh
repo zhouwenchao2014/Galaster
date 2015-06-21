@@ -169,6 +169,11 @@ public:
     rw_lock lock;
     std::vector<layer_type *> layers;
     layer_type *g = nullptr;
+
+private:
+    void render_particle_edges(void);
+    void render_particle_vertices(GLfloat *modelview);
+    void render_particle_labels(GLfloat *modelview);
 };
 
 
