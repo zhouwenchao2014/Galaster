@@ -25,6 +25,7 @@ if (APPLE)
                                "${CORE_VIDEO_FRAMEWORK}")
 endif ()
 
+if (APPLE)
 target_link_libraries(galaster
   ${GALASTER_LIBRARIES}
   ${GLFW_LIBRARIES}
@@ -32,3 +33,11 @@ target_link_libraries(galaster
   ${FREETYPE2_LIBRARIES}
   /usr/local/lib/libiomp5.dylib
 )
+else ()
+target_link_libraries(galaster
+  ${GALASTER_LIBRARIES}
+  ${GLFW_LIBRARIES}
+  ${OPENGL_LIBRARIES}
+  ${FREETYPE2_LIBRARIES}
+)
+endif ()
