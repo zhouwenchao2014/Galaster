@@ -260,7 +260,20 @@ int connect(void)
 
     return 1;
 }
- 
+
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (!the_graph) return;
+    if (key == 'N' and action == GLFW_RELEASE) {
+        new std::thread([&]() {
+                connect();
+            });
+    } else {
+        galaster_key_callback(window, key, scancode, action, mods);
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -290,11 +303,7 @@ int main(int argc, char *argv[])
         worklist.push_back(std::make_pair(host, path));
         visited_hostname.insert(host);
 
-        new std::thread([&]() {
-                sleep(1);
-                connect();
-            });
-
+        glfwSetKeyCallback(window, key_callback);
         galaster_run(window, the_graph, 0.4);
     }
 
