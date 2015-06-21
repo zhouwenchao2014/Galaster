@@ -45,6 +45,15 @@ public:
     double greend(void) const { return g; }
     double blued(void) const { return b; }
 
+    unsigned int c4u(unsigned int alpha = 255) const {
+        unsigned int rgba;
+        ((unsigned char *) &rgba)[0] = redd() * 255;
+        ((unsigned char *) &rgba)[1] = greend() * 255;
+        ((unsigned char *) &rgba)[2] = blued() * 255;
+        ((unsigned char *) &rgba)[3] = alpha;
+        return rgba;
+    }
+
     static const color_type red, green, blue, white, darkgray;
 };
 
