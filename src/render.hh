@@ -352,7 +352,7 @@ void edge_styled<_coord_type>::render(void) const
 
     vector3d_type arrow_dir(vector3d_type::zero);
     _coord_type ax = 0, ay = 0, az = 0;
-    _coord_type label_x, label_y, label_z;
+    _coord_type label_x = 0, label_y = 0, label_z = 0;
 
     if (!spline) {
         glDisable(GL_LIGHTING);
