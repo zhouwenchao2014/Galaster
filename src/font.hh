@@ -30,6 +30,7 @@ public:
         unsigned tex;
     };
 
+    // cache particular glyph of various sizes 
     struct glyphcache {
         glyphcache(facecache *glyph_cache, wchar_t ch)
             : glyph_cache(glyph_cache), ch(ch) {
@@ -41,6 +42,7 @@ public:
         std::map<size_t, glyph> c_glyph;
     };
 
+    // cache loaded font faces
     struct facecache {
         facecache(fontcache *font_cache, FT_Face face)
             : font_cache(font_cache), face(face) {
