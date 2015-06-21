@@ -176,7 +176,7 @@ int connect(void)
         // Parse the data //
         try {
             const std::regex rmv_all("[\\r|\\n]");
-            const std::string s2 = std::regex_replace(recv, rmv_all, "");
+            const std::string s2 = std::regex_replace(recv, rmv_all, std::string(""));
             const std::string s = s2;
             const std::regex re("<a\\s+href\\s*=\\s*(\"([^\"]*)\")|('([^']*)')\\s*>");
             std::cmatch matches;
