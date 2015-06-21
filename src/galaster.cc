@@ -63,13 +63,13 @@ struct camera_view_type
     }
 
     void on_up(void) {
-        if (d_phi > 0) d_phi = 0;
-        else d_phi -= step;
+        if (d_phi < 0) d_phi = 0;
+        else d_phi += step;
     }
 
     void on_down(void) {
-        if (d_phi < 0) d_phi = 0;
-        else d_phi += step;
+        if (d_phi > 0) d_phi = 0;
+        else d_phi -= step;
     }
 
     void update_view(double new_zoom) {
