@@ -9,6 +9,16 @@
    below so if you are interested in this project please stay tuned or make
    contributions through pull requests.
 
+** How To Build
+
+   You need GLFW, FreeType and CMake to build this project
+   #+BEGIN_SRC shell
+mkdir build
+cd build
+cmake ..
+make
+   #+END_SRC
+
 ** Galaster In Action
 
    [[mov/cube.gif]]
