@@ -3,11 +3,12 @@
 
 ** Overview
 
-   Galaster is a system for visualizing dynamic graphs. Currently it is not usable
-   and still needs lots of development efforts, you can compile this half-way done
-   prototype and preview the dynamic graphs in action. Works to be done is listed
-   below so if you are interested in this project please stay tuned or make
-   contributions through pull requests.
+   Galaster is a system for visualizing dynamic graphs, the goal of this project is
+   to create a opensource version of ubigraph. Currently it is not usable and still
+   needs lots of development efforts, you can compile this half-way done prototype
+   and preview the dynamic graphs in action. Works to be done is listed below so if
+   you are interested in this project please stay tuned or make contributions through
+   pull requests.
 
 ** How To Build
 
