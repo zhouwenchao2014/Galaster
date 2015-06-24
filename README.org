@@ -22,8 +22,7 @@ make
 
 ** Galaster In Action
 
-   [![Galaster in Action](http://ntu.so/di/UTWIY/Screen_Shot_2015-06-25_at_12.png)](http://vimeo.com/131449418
-   "Graph Visualization via Galaster - Web Crawler in Action")
+   [[http://vimeo.com/131449418][Web Crawler Demonstration]]
 
 ** Future Works
 
