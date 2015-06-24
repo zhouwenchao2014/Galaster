@@ -10,6 +10,14 @@
    you are interested in this project please stay tuned or make contributions through
    pull requests.
 
+
+** Galaster In Action
+
+   [[https://vimeo.com/131449418][Graph Visualization via Galaster - Web Crawlers in Action]]
+
+   [[http://ntu.so/di/UTWIY/Screen_Shot_2015-06-25_at_12.png]]
+
+
 ** How To Build
 
    You need GLFW, FreeType and CMake to build this project
@@ -19,11 +27,6 @@ cd build
 cmake ..
 make
    #+END_SRC
-
-** Galaster In Action
-
-   [[https://vimeo.com/131449418][Graph Visualization via Galaster - Web Crawlers in Action]]
-   [[http://ntu.so/di/UTWIY/Screen_Shot_2015-06-25_at_12.png]]
 
 
 ** Future Works
