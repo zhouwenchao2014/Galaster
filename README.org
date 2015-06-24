@@ -22,7 +22,7 @@ make
 
 ** Galaster In Action
 
-   [[http://vimeo.com/131449418][Web Crawler Demonstration]]
+   [[https://vimeo.com/131449418][[[http://ntu.so/di/UTWIY/Screen_Shot_2015-06-25_at_12.png]]]]
 
 ** Future Works
 
