@@ -38,25 +38,14 @@ make
    Though rotating the graph through mouse dragging is currently unsupported, a
    number of keystrokes are recognized:
 
-   +-----------+-----------------------------+
    |Key        |Function                     |
-   +-----------+-----------------------------+
    |↑, ↓       |x-axis rotation              |
-   +-----------+-----------------------------+
    |←, →       |z-axis rotation              |
-   +-----------+-----------------------------+
    |w, s       |zoom in/out                  |
-   +-----------+-----------------------------+
    |f, b       |zoom way in/out              |
-   +-----------+-----------------------------+
-   |r          |reset vertices to random     |
-   |           |positions                    |
-   +-----------+-----------------------------+
+   |r          |reset vertices to random positions    |
    |m          |toggle solid/particle mode   |
-   +-----------+-----------------------------+
-   |a, n, ...  |useful in particular examples|
-   |           |(binary_tre, membrane, etc.) |
-   +-----------+-----------------------------+
+   |a, n, ...  |useful in particular examples (binary_tre, membrane, etc.)|
    
 ** Future Works
 
