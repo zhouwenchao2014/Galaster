@@ -4,11 +4,8 @@
 ** Overview
 
    Galaster is a system for visualizing dynamic graphs, the goal of this project is
-   to create an opensource version of ubigraph. Currently it is not usable and still
-   needs lots of development efforts, you can compile this half-way done prototype
-   and preview the dynamic graphs in action. Works to be done is listed below so if
-   you are interested in this project please stay tuned or make contributions through
-   pull requests.
+   to create an opensource version of ubigraph. Currently it could work as a static
+   C++ library, RPC APIs for other programming languages will be implemented soon.
 
 
 ** Galaster In Action
@@ -20,7 +17,10 @@
 
 ** How To Build
 
-   You need GLFW, FreeType and CMake to build this project
+   You need GLFW, FreeType and CMake to build this project. The following command
+   builds the static C++ library =libgalaster.a= as well as all examples included in
+   this project.
+
    #+BEGIN_SRC shell
 mkdir build
 cd build
@@ -28,7 +28,36 @@ cmake ..
 make
    #+END_SRC
 
+   Once you successfully built this project, you can launch an example to see if it
+   works fine. Type =./examples/cube= to launch the `cube` example, which layout 1000
+   nodes as a 10x10x10 cube. You will get a very primitive window for interactively
+   viewing the graph.
 
+   [[https://s-media-cache-ak0.pinimg.com/originals/f4/87/14/f48714768d7b070b29f7b5c8344e81f8.png]]
+
+   Though rotating the graph through mouse dragging is currently unsupported, a
+   number of keystrokes are recognized:
+
+   +-----------+-----------------------------+
+   |Key        |Function                     |
+   +-----------+-----------------------------+
+   |↑, ↓       |x-axis rotation              |
+   +-----------+-----------------------------+
+   |←, →       |z-axis rotation              |
+   +-----------+-----------------------------+
+   |w, s       |zoom in/out                  |
+   +-----------+-----------------------------+
+   |f, b       |zoom way in/out              |
+   +-----------+-----------------------------+
+   |r          |reset vertices to random     |
+   |           |positions                    |
+   +-----------+-----------------------------+
+   |m          |toggle solid/particle mode   |
+   +-----------+-----------------------------+
+   |a, n, ...  |useful in particular examples|
+   |           |(binary_tre, membrane, etc.) |
+   +-----------+-----------------------------+
+   
 ** Future Works
 
    - RPC based API and bindings for various programming languages
